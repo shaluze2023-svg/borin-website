@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置 - ぼりんの网站</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { min-height: 100vh; background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #1a1a2e); background-size: 400% 400%; animation: gradientBG 15s ease infinite; color: #f0f0f0; overflow-x: hidden; display: flex; flex-direction: column; }
+        body.sidebar-open { overflow: hidden; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: rgba(10, 10, 20, 0.7); backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); position: sticky; top: 0; z-index: 100; }
+        .menu-btn, .search-btn { background: none; border: none; color: #f0f0f0; font-size: 1.8rem; cursor: pointer; padding: 10px; border-radius: 50%; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; z-index: 101; }
+        .menu-btn:hover, .search-btn:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.1); }
+        .title { font-size: 2.2rem; font-weight: 700; letter-spacing: 2px; text-shadow: 0 0 15px rgba(100, 150, 255, 0.5); background: linear-gradient(to right, #ff7e5f, #feb47b, #86a8e7, #91eae4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: titleGlow 3s ease-in-out infinite alternate; }
+        @keyframes titleGlow { from { text-shadow: 0 0 10px rgba(100, 150, 255, 0.5); } to { text-shadow: 0 0 20px rgba(100, 200, 255, 0.8), 0 0 30px rgba(100, 150, 255, 0.6); } }
+        .sidebar { position: fixed; top: 0; left: -350px; width: 350px; height: 100vh; background: rgba(15, 20, 40, 0.95); backdrop-filter: blur(10px); box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5); z-index: 1000; transition: left 0.4s ease; display: flex; flex-direction: column; overflow-y: auto; padding: 20px; }
+        .sidebar.open { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(100, 120, 200, 0.3); }
+        .close-btn { background: none; border: none; color: #f0f0f0; font-size: 2rem; cursor: pointer; transition: all 0.3s ease; }
+        .close-btn:hover { color: #ff7e5f; transform: rotate(90deg); }
+        .sidebar-title { font-size: 1.8rem; background: linear-gradient(to right, #86a8e7, #91eae4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-menu { padding: 30px 0; }
+        .menu-item { padding: 15px 20px; margin: 10px 0; border-radius: 10px; display: flex; align-items: center; transition: all 0.3s ease; cursor: pointer; font-size: 1.2rem; background: rgba(30, 40, 80, 0.5); }
+        .menu-item:hover { background: rgba(100, 120, 200, 0.3); transform: translateX(10px); }
+        .menu-item i { margin-right: 15px; font-size: 1.5rem; width: 30px; text-align: center; }
+        .bilibili-icon { color: #fb7299; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .overlay.active { opacity: 1; visibility: visible; }
+        main { flex: 1; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
+        .settings-container { max-width: 600px; width: 100%; background: rgba(20, 25, 50, 0.6); border-radius: 20px; padding: 40px; border: 1px solid rgba(100, 120, 200, 0.3); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); text-align: center; }
+        .settings-title { font-size: 2.5rem; margin-bottom: 30px; color: #feb47b; }
+        .back-btn { display: inline-flex; align-items: center; background: rgba(30, 40, 80, 0.5); color: #f0f0f0; padding: 10px 20px; border-radius: 30px; text-decoration: none; transition: all 0.3s ease; margin-bottom: 30px; border: 1px solid rgba(100, 120, 200, 0.3); }
+        .back-btn:hover { background: rgba(100, 120, 200, 0.3); transform: translateX(-5px); }
+        .back-btn i { margin-right: 8px; }
+        .setting-item { margin: 25px 0; text-align: left; }
+        .setting-label { display: block; font-size: 1.1rem; color: #86a8e7; margin-bottom: 10px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(30, 40, 70, 0.5); border-radius: 10px; margin-bottom: 15px; }
+        .setting-name { font-size: 1rem; }
+        .setting-desc { font-size: 0.85rem; color: #a0a0c0; margin-top: 5px; }
+        .toggle-switch { position: relative; width: 50px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(100, 120, 200, 0.3); transition: 0.4s; border-radius: 26px; }
+        .toggle-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: 0.4s; border-radius: 50%; }
+        input:checked + .toggle-slider { background-color: #fb7299; }
+        input:checked + .toggle-slider:before { transform: translateX(24px); }
+        .language-select { width: 100%; padding: 15px; background: rgba(30, 40, 70, 0.5); border: 1px solid rgba(100, 120, 200, 0.3); border-radius: 10px; color: #f0f0f0; font-size: 1.1rem; text-align: center; cursor: pointer; }
+        .language-select:focus { outline: none; border-color: #86a8e7; }
+        .language-select option { background: #1a1a2e; color: #f0f0f0; }
+        .save-btn { background: #fb7299; color: white; border: none; padding: 12px 30px; border-radius: 30px; font-size: 1.1rem; cursor: pointer; transition: all 0.3s ease; margin-top: 20px; }
+        .save-btn:hover { background: #e55a80; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(251, 114, 153, 0.4); }
+        .save-btn i { margin-right: 8px; }
+        .language-info { margin-top: 30px; padding: 20px; background: rgba(30, 40, 70, 0.5); border-radius: 15px; font-size: 1rem; color: #a0a0c0; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(251, 114, 153, 0.9); color: white; padding: 15px 30px; border-radius: 10px; font-size: 1rem; z-index: 2000; transition: transform 0.3s ease; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        footer { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 25px; background: rgba(10, 10, 20, 0.85); color: #a0a0c0; border-top: 1px solid rgba(100, 120, 200, 0.2); }
+        .time-display { display: flex; justify-content: center; align-items: center; margin-top: 10px; font-size: 1.6rem; color: #fff; background: rgba(30, 40, 70, 0.5); padding: 15px 30px; border-radius: 15px; font-weight: 600; letter-spacing: 1px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
+        .time-label { color: #86a8e7; margin-right: 10px; }
+        .time-value { color: #feb47b; min-width: 170px; text-align: center; }
+        .copyright { margin-top: 20px; font-size: 1rem; color: #888; }
+        .time-icon { margin-right: 15px; font-size: 1.8rem; color: #ff7e5f; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @media (max-width: 768px) { .settings-title { font-size: 2rem; } .settings-container { padding: 30px; } }
+        @media (max-width: 480px) { header { padding: 15px 20px; } .title { font-size: 1.5rem; } .menu-btn, .search-btn { font-size: 1.5rem; } .settings-title { font-size: 1.8rem; } .settings-container { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">ぼりんの菜单</h2>
+            <button class="close-btn" id="closeSidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-item" onclick="navigateTo('bilibili.html')"><i class="fab fa-bilibili bilibili-icon"></i><span>B站热门视频</span></div>
+            <div class="menu-item" onclick="navigateTo('settings.html')"><i class="fas fa-cog"></i><span>设置</span></div>
+            <div class="menu-item" onclick="navigateTo('about.html')"><i class="fas fa-info-circle"></i><span>关于我们</span></div>
+        </div>
+        <div class="sidebar-footer" style="margin-top: auto; padding: 20px 0; text-align: center;"><p>更多功能开发中...</p></div>
+    </div>
+    <div class="overlay" id="overlay"></div>
+    <div class="toast" id="toast">设置已保存</div>
+    <header>
+        <button class="menu-btn" id="menuToggle"><i class="fas fa-bars"></i></button>
+        <h1 class="title">设置</h1>
+        <button class="search-btn" id="searchToggle"><i class="fas fa-search"></i></button>
+    </header>
+    <main>
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        <div class="settings-container">
+            <h2 class="settings-title">系统设置</h2>
+            
+            <div class="setting-item">
+                <label class="setting-label">语言设置</label>
+                <select class="language-select" id="language">
+                    <option value="zh">简体中文</option>
+                    <option value="zh-tw">繁體中文</option>
+                    <option value="en">English</option>
+                    <option value="ja">日本語</option>
+                </select>
+            </div>
+            
+            <div class="setting-item">
+                <label class="setting-label">显示设置</label>
+                <div class="setting-row">
+                    <div>
+                        <div class="setting-name">显示视频封面</div>
+                        <div class="setting-desc">在视频列表中显示封面图片</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="showCovers" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <div>
+                        <div class="setting-name">动画效果</div>
+                        <div class="setting-desc">启用页面过渡动画</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enableAnimations" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <div>
+                        <div class="setting-name">自动播放</div>
+                        <div class="setting-desc">点击视频自动尝试打开B站APP</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="autoPlay" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="setting-item">
+                <label class="setting-label">数据管理</label>
+                <div class="setting-row" style="cursor: pointer;" onclick="clearCache()">
+                    <div>
+                        <div class="setting-name">清除缓存</div>
+                        <div class="setting-desc">清除本地存储的设置和数据</div>
+                    </div>
+                    <i class="fas fa-trash" style="color: #fb7299;"></i>
+                </div>
+            </div>
+            
+            <button class="save-btn" onclick="saveSettings()"><i class="fas fa-save"></i> 保存设置</button>
+            
+            <div class="language-info">
+                <p>设置将保存在浏览器本地存储中</p>
+                <p>清除浏览器数据会重置所有设置</p>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="time-display"><i class="fas fa-clock time-icon"></i><span class="time-label">北京时间：</span><span class="time-value" id="beijing-time">00:00:00</span></div>
+        <div class="copyright">© 2023 ぼりんの网站 | 设置页面</div>
+    </footer>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menuToggle');
+        const closeSidebar = document.getElementById('closeSidebar');
+        const overlay = document.getElementById('overlay');
+        const toast = document.getElementById('toast');
+        
+        menuToggle.addEventListener('click', function() { sidebar.classList.add('open'); overlay.classList.add('active'); document.body.classList.add('sidebar-open'); });
+        function closeSidebarMenu() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.classList.remove('sidebar-open'); }
+        closeSidebar.addEventListener('click', closeSidebarMenu);
+        overlay.addEventListener('click', closeSidebarMenu);
+        function navigateTo(page) { closeSidebarMenu(); setTimeout(() => { window.location.href = page; }, 300); }
+        
+        // 加载保存的设置
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('borinSettings') || '{}');
+            if (settings.language) document.getElementById('language').value = settings.language;
+            if (settings.showCovers !== undefined) document.getElementById('showCovers').checked = settings.showCovers;
+            if (settings.enableAnimations !== undefined) document.getElementById('enableAnimations').checked = settings.enableAnimations;
+            if (settings.autoPlay !== undefined) document.getElementById('autoPlay').checked = settings.autoPlay;
+        }
+        
+        // 保存设置
+        function saveSettings() {
+            const settings = {
+                language: document.getElementById('language').value,
+                showCovers: document.getElementById('showCovers').checked,
+                enableAnimations: document.getElementById('enableAnimations').checked,
+                autoPlay: document.getElementById('autoPlay').checked
+            };
+            localStorage.setItem('borinSettings', JSON.stringify(settings));
+            showToast('设置已保存！');
+        }
+        
+        // 清除缓存
+        function clearCache() {
+            localStorage.removeItem('borinSettings');
+            localStorage.removeItem('videoCache');
+            showToast('缓存已清除！');
+            loadSettings();
+        }
+        
+        // 显示提示
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2000);
+        }
+        
+        function getBeijingTime() { const now = new Date(); const utc = now.getTime() + (now.getTimezoneOffset() * 60000); return new Date(utc + (3600000 * 8)); }
+        function formatTime(num) { return num.toString().padStart(2, '0'); }
+        function updateTimeDisplay() {
+            const now = getBeijingTime();
+            document.getElementById('beijing-time').textContent = formatTime(now.getHours()) + ':' + formatTime(now.getMinutes()) + ':' + formatTime(now.getSeconds());
+            const timeValue = document.querySelector('.time-value');
+            timeValue.style.opacity = timeValue.style.opacity === '0.8' ? '1' : '0.8';
+        }
+        
+        updateTimeDisplay();
+        setInterval(updateTimeDisplay, 1000);
+        document.getElementById('searchToggle').addEventListener('click', function() { window.location.href = 'search.html'; });
+        
+        // 页面加载时读取设置
+        loadSettings();
+    </script>
+</body>
+</html>

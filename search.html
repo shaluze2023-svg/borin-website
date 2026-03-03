@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜索 - ぼりんの网站</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { min-height: 100vh; background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #1a1a2e); background-size: 400% 400%; animation: gradientBG 15s ease infinite; color: #f0f0f0; overflow-x: hidden; display: flex; flex-direction: column; }
+        body.sidebar-open { overflow: hidden; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: rgba(10, 10, 20, 0.7); backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); position: sticky; top: 0; z-index: 100; }
+        .menu-btn, .search-btn { background: none; border: none; color: #f0f0f0; font-size: 1.8rem; cursor: pointer; padding: 10px; border-radius: 50%; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; z-index: 101; }
+        .menu-btn:hover, .search-btn:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.1); }
+        .title { font-size: 2.2rem; font-weight: 700; letter-spacing: 2px; text-shadow: 0 0 15px rgba(100, 150, 255, 0.5); background: linear-gradient(to right, #ff7e5f, #feb47b, #86a8e7, #91eae4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: titleGlow 3s ease-in-out infinite alternate; }
+        @keyframes titleGlow { from { text-shadow: 0 0 10px rgba(100, 150, 255, 0.5); } to { text-shadow: 0 0 20px rgba(100, 200, 255, 0.8), 0 0 30px rgba(100, 150, 255, 0.6); } }
+        .sidebar { position: fixed; top: 0; left: -350px; width: 350px; height: 100vh; background: rgba(15, 20, 40, 0.95); backdrop-filter: blur(10px); box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5); z-index: 1000; transition: left 0.4s ease; display: flex; flex-direction: column; overflow-y: auto; padding: 20px; }
+        .sidebar.open { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid rgba(100, 120, 200, 0.3); }
+        .close-btn { background: none; border: none; color: #f0f0f0; font-size: 2rem; cursor: pointer; transition: all 0.3s ease; }
+        .close-btn:hover { color: #ff7e5f; transform: rotate(90deg); }
+        .sidebar-title { font-size: 1.8rem; background: linear-gradient(to right, #86a8e7, #91eae4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-menu { padding: 30px 0; }
+        .menu-item { padding: 15px 20px; margin: 10px 0; border-radius: 10px; display: flex; align-items: center; transition: all 0.3s ease; cursor: pointer; font-size: 1.2rem; background: rgba(30, 40, 80, 0.5); }
+        .menu-item:hover { background: rgba(100, 120, 200, 0.3); transform: translateX(10px); }
+        .menu-item i { margin-right: 15px; font-size: 1.5rem; width: 30px; text-align: center; }
+        .bilibili-icon { color: #fb7299; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .overlay.active { opacity: 1; visibility: visible; }
+        main { flex: 1; padding: 30px 20px; max-width: 800px; margin: 0 auto; width: 100%; }
+        .search-container { background: rgba(20, 25, 50, 0.6); border-radius: 20px; padding: 30px; border: 1px solid rgba(100, 120, 200, 0.3); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+        .search-box { display: flex; margin-bottom: 30px; position: relative; }
+        .search-input { flex: 1; padding: 15px 20px; border-radius: 30px; border: none; background: rgba(30, 40, 70, 0.7); color: #f0f0f0; font-size: 1.1rem; padding-left: 50px; border: 1px solid rgba(100, 120, 200, 0.3); transition: all 0.3s ease; }
+        .search-input:focus { outline: none; border-color: #86a8e7; box-shadow: 0 0 15px rgba(100, 150, 255, 0.3); }
+        .search-icon { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #a0a0c0; font-size: 1.3rem; }
+        .search-results { min-height: 300px; }
+        .results-title { font-size: 1.5rem; margin-bottom: 20px; color: #feb47b; display: flex; align-items: center; }
+        .results-title i { margin-right: 10px; }
+        .no-results { text-align: center; padding: 50px 0; color: #a0a0c0; font-size: 1.2rem; }
+        .no-results i { font-size: 3rem; margin-bottom: 20px; color: #fb7299; }
+        .result-item { background: rgba(30, 40, 70, 0.5); border-radius: 15px; padding: 20px; margin-bottom: 20px; display: flex; align-items: center; transition: all 0.3s ease; cursor: pointer; border: 1px solid rgba(100, 120, 200, 0.2); }
+        .result-item:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); border-color: rgba(100, 150, 255, 0.5); }
+        .result-icon { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #fb7299, #ffafc9); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: white; margin-right: 20px; flex-shrink: 0; }
+        .result-content { flex: 1; }
+        .result-title { font-size: 1.2rem; margin-bottom: 5px; color: #86a8e7; }
+        .result-desc { font-size: 0.95rem; color: #a0a0c0; }
+        .video-cover { width: 120px; height: 70px; border-radius: 8px; overflow: hidden; margin-left: 15px; flex-shrink: 0; position: relative; background: linear-gradient(45deg, #2c3e50, #4a6580); }
+        .video-cover img { width: 100%; height: 100%; object-fit: cover; }
+        .back-btn { display: inline-flex; align-items: center; background: rgba(30, 40, 80, 0.5); color: #f0f0f0; padding: 10px 20px; border-radius: 30px; text-decoration: none; transition: all 0.3s ease; margin-bottom: 30px; border: 1px solid rgba(100, 120, 200, 0.3); }
+        .back-btn:hover { background: rgba(100, 120, 200, 0.3); transform: translateX(-5px); }
+        .back-btn i { margin-right: 8px; }
+        .loading { text-align: center; padding: 30px; color: #a0a0c0; }
+        .loading i { font-size: 2rem; margin-bottom: 15px; animation: spin 1.5s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        footer { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 25px; background: rgba(10, 10, 20, 0.85); color: #a0a0c0; border-top: 1px solid rgba(100, 120, 200, 0.2); }
+        .time-display { display: flex; justify-content: center; align-items: center; margin-top: 10px; font-size: 1.6rem; color: #fff; background: rgba(30, 40, 70, 0.5); padding: 15px 30px; border-radius: 15px; font-weight: 600; letter-spacing: 1px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
+        .time-label { color: #86a8e7; margin-right: 10px; }
+        .time-value { color: #feb47b; min-width: 170px; text-align: center; }
+        .copyright { margin-top: 20px; font-size: 1rem; color: #888; }
+        .time-icon { margin-right: 15px; font-size: 1.8rem; color: #ff7e5f; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .search-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-tab { padding: 10px 20px; border-radius: 20px; background: rgba(30, 40, 70, 0.5); color: #a0a0c0; border: 1px solid rgba(100, 120, 200, 0.3); cursor: pointer; transition: all 0.3s ease; }
+        .search-tab.active { background: rgba(251, 114, 153, 0.3); color: #fb7299; border-color: #fb7299; }
+        .search-tab:hover { background: rgba(100, 120, 200, 0.3); }
+        @media (max-width: 768px) { .title { font-size: 1.8rem; } .search-container { padding: 20px; } .video-cover { width: 100px; height: 60px; } }
+        @media (max-width: 480px) { header { padding: 15px 20px; } .title { font-size: 1.5rem; } .menu-btn, .search-btn { font-size: 1.5rem; } .search-input { padding-left: 40px; font-size: 1rem; } .search-icon { left: 15px; font-size: 1.1rem; } .result-item { flex-direction: column; align-items: flex-start; } .video-cover { width: 100%; height: 120px; margin: 15px 0 0 0; } }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">ぼりんの菜单</h2>
+            <button class="close-btn" id="closeSidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-item" onclick="navigateTo('bilibili.html')"><i class="fab fa-bilibili bilibili-icon"></i><span>B站热门视频</span></div>
+            <div class="menu-item" onclick="navigateTo('settings.html')"><i class="fas fa-cog"></i><span>设置</span></div>
+            <div class="menu-item" onclick="navigateTo('about.html')"><i class="fas fa-info-circle"></i><span>关于我们</span></div>
+        </div>
+        <div class="sidebar-footer" style="margin-top: auto; padding: 20px 0; text-align: center;"><p>更多功能开发中...</p></div>
+    </div>
+    <div class="overlay" id="overlay"></div>
+    <header>
+        <button class="menu-btn" id="menuToggle"><i class="fas fa-bars"></i></button>
+        <h1 class="title">搜索</h1>
+        <button class="search-btn" id="searchToggle"><i class="fas fa-search"></i></button>
+    </header>
+    <main>
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索菜单、B站视频..." autocomplete="off">
+            </div>
+            <div class="search-tabs">
+                <div class="search-tab active" data-type="all">全部</div>
+                <div class="search-tab" data-type="menu">菜单</div>
+                <div class="search-tab" data-type="video">B站视频</div>
+            </div>
+            <div class="search-results" id="searchResults">
+                <div class="results-title"><i class="fas fa-search"></i><span>输入关键词开始搜索</span></div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="time-display"><i class="fas fa-clock time-icon"></i><span class="time-label">北京时间：</span><span class="time-value" id="beijing-time">00:00:00</span></div>
+        <div class="copyright">© 2023 ぼりんの网站 | 搜索功能</div>
+    </footer>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menuToggle');
+        const closeSidebar = document.getElementById('closeSidebar');
+        const overlay = document.getElementById('overlay');
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        
+        menuToggle.addEventListener('click', function() { sidebar.classList.add('open'); overlay.classList.add('active'); document.body.classList.add('sidebar-open'); });
+        function closeSidebarMenu() { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.classList.remove('sidebar-open'); }
+        closeSidebar.addEventListener('click', closeSidebarMenu);
+        overlay.addEventListener('click', closeSidebarMenu);
+        function navigateTo(page) { closeSidebarMenu(); setTimeout(() => { window.location.href = page; }, 300); }
+        
+        // 本地菜单数据
+        const menuItems = [
+            { type: 'menu', title: 'B站热门视频', description: '查看B站今日热门视频TOP30', icon: 'fab fa-bilibili', url: 'bilibili.html' },
+            { type: 'menu', title: '设置', description: '网站设置和个性化配置', icon: 'fas fa-cog', url: 'settings.html' },
+            { type: 'menu', title: '关于我们', description: '了解ぼりんの网站的故事', icon: 'fas fa-info-circle', url: 'about.html' },
+            { type: 'menu', title: '首页', description: '返回网站首页', icon: 'fas fa-home', url: 'index.html' }
+        ];
+        
+        // 热门视频缓存
+        let videoCache = [];
+        let currentSearchType = 'all';
+        
+        // 搜索标签切换
+        document.querySelectorAll('.search-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentSearchType = this.dataset.type;
+                const keyword = searchInput.value.trim();
+                if (keyword) performSearch(keyword);
+            });
+        });
+        
+        // 获取B站热门视频用于搜索
+        async function fetchVideosForSearch() {
+            if (videoCache.length > 0) return videoCache;
+            try {
+                const response = await fetch('https://api.bilibili.com/x/web-interface/popular?ps=50');
+                const data = await response.json();
+                if (data.code === 0 && data.data && data.data.list) {
+                    videoCache = data.data.list.map(item => ({
+                        type: 'video',
+                        title: item.title,
+                        description: item.owner.name + ' · ' + formatViewCount(item.stat.view) + '播放',
+                        bvid: item.bvid,
+                        cover: item.pic
+                    }));
+                    return videoCache;
+                }
+            } catch (e) {
+                console.log('获取B站视频失败:', e);
+            }
+            return [];
+        }
+        
+        function formatViewCount(count) {
+            if (count >= 10000) return (count / 10000).toFixed(1) + '万';
+            return count.toString();
+        }
+        
+        let searchTimer;
+        searchInput.focus();
+        
+        searchInput.addEventListener('input', function() {
+            const keyword = this.value.trim();
+            clearTimeout(searchTimer);
+            
+            if (keyword === '') {
+                searchResults.innerHTML = '<div class="results-title"><i class="fas fa-search"></i><span>输入关键词开始搜索</span></div>';
+                return;
+            }
+            
+            searchResults.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>搜索中...</p></div>';
+            searchTimer = setTimeout(() => { performSearch(keyword); }, 300);
+        });
+        
+        async function performSearch(keyword) {
+            const results = [];
+            const lowerKeyword = keyword.toLowerCase();
+            
+            // 搜索菜单
+            if (currentSearchType === 'all' || currentSearchType === 'menu') {
+                menuItems.forEach(item => {
+                    if (item.title.toLowerCase().includes(lowerKeyword) || item.description.toLowerCase().includes(lowerKeyword)) {
+                        results.push(item);
+                    }
+                });
+            }
+            
+            // 搜索B站视频
+            if (currentSearchType === 'all' || currentSearchType === 'video') {
+                const videos = await fetchVideosForSearch();
+                videos.forEach(item => {
+                    if (item.title.toLowerCase().includes(lowerKeyword) || item.description.toLowerCase().includes(lowerKeyword)) {
+                        results.push(item);
+                    }
+                });
+            }
+            
+            displayResults(results, keyword);
+        }
+        
+        function displayResults(results, keyword) {
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="no-results"><i class="fas fa-search-minus"></i><p>没有找到 "' + keyword + '" 的结果</p><p>请尝试其他关键词</p></div>';
+                return;
+            }
+            
+            let html = '<div class="results-title"><i class="fas fa-search"></i><span>找到 ' + results.length + ' 个结果</span></div>';
+            
+            results.forEach(item => {
+                if (item.type === 'menu') {
+                    html += '<div class="result-item" data-url="' + item.url + '"><div class="result-icon"><i class="' + item.icon + '"></i></div><div class="result-content"><div class="result-title">' + item.title + '</div><div class="result-desc">' + item.description + '</div></div></div>';
+                } else if (item.type === 'video') {
+                    html += '<div class="result-item" data-bvid="' + item.bvid + '" data-title="' + item.title + '"><div class="result-icon"><i class="fab fa-bilibili"></i></div><div class="result-content"><div class="result-title">' + item.title + '</div><div class="result-desc">' + item.description + '</div></div><div class="video-cover"><img src="' + item.cover + '" alt="' + item.title + '" onerror="this.style.display=\'none\'"></div></div>';
+                }
+            });
+            
+            searchResults.innerHTML = html;
+            
+            document.querySelectorAll('.result-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const url = this.dataset.url;
+                    const bvid = this.dataset.bvid;
+                    if (url) {
+                        window.location.href = url;
+                    } else if (bvid) {
+                        openBilibiliVideo(bvid, this.dataset.title);
+                    }
+                });
+            });
+        }
+        
+        function openBilibiliVideo(bvid, title) {
+            try {
+                window.location.href = 'bilibili://video/' + bvid;
+            } catch (e) {
+                console.error('打开APP失败:', e);
+            }
+            setTimeout(function() {
+                if (!document.hidden) {
+                    window.location.href = 'https://www.bilibili.com/video/' + bvid;
+                }
+            }, 1500);
+        }
+        
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const keyword = this.value.trim();
+                if (keyword) performSearch(keyword);
+            }
+        });
+        
+        function getBeijingTime() { const now = new Date(); const utc = now.getTime() + (now.getTimezoneOffset() * 60000); return new Date(utc + (3600000 * 8)); }
+        function formatTime(num) { return num.toString().padStart(2, '0'); }
+        function updateTimeDisplay() {
+            const now = getBeijingTime();
+            document.getElementById('beijing-time').textContent = formatTime(now.getHours()) + ':' + formatTime(now.getMinutes()) + ':' + formatTime(now.getSeconds());
+            const timeValue = document.querySelector('.time-value');
+            timeValue.style.opacity = timeValue.style.opacity === '0.8' ? '1' : '0.8';
+        }
+        
+        updateTimeDisplay();
+        setInterval(updateTimeDisplay, 1000);
+        
+        // 预加载视频数据
+        fetchVideosForSearch();
+    </script>
+</body>
+</html>

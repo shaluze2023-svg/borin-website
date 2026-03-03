@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>错误 - ぼりんの网站</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { min-height: 100vh; background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #1a1a2e); background-size: 400% 400%; animation: gradientBG 15s ease infinite; color: #f0f0f0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .error-container { max-width: 600px; padding: 40px; background: rgba(20, 25, 50, 0.7); border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); border: 1px solid rgba(251, 114, 153, 0.3); }
+        .error-icon { font-size: 5rem; color: #fb7299; margin-bottom: 20px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        h1 { font-size: 2.5rem; margin-bottom: 20px; color: #fb7299; }
+        p { font-size: 1.2rem; margin-bottom: 30px; line-height: 1.6; color: #a0a0c0; }
+        .btn { display: inline-block; background: #fb7299; color: white; padding: 12px 30px; border-radius: 30px; text-decoration: none; font-size: 1.1rem; transition: all 0.3s ease; border: none; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #e55a80; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(251, 114, 153, 0.4); }
+        .btn i { margin-right: 8px; }
+        .btn.secondary { background: rgba(30, 40, 80, 0.5); border: 1px solid rgba(100, 120, 200, 0.3); }
+        .btn.secondary:hover { background: rgba(100, 120, 200, 0.3); }
+        .error-code { font-size: 0.9rem; color: #666; margin-top: 20px; }
+        @media (max-width: 480px) { h1 { font-size: 2rem; } p { font-size: 1rem; } .error-icon { font-size: 4rem; } .error-container { padding: 30px; } }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <h1>发生错误</h1>
+        <p id="error-message">抱歉，页面加载时出现了问题。请尝试刷新页面或返回首页。</p>
+        <a href="index.html" class="btn"><i class="fas fa-home"></i> 返回首页</a>
+        <button class="btn secondary" onclick="location.reload()"><i class="fas fa-sync-alt"></i> 重新加载</button>
+        <p class="error-code" id="error-code"></p>
+    </div>
+    <script>
+        // 从URL参数获取错误信息
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorMsg = urlParams.get('msg');
+        const errorCode = urlParams.get('code');
+        
+        if (errorMsg) {
+            document.getElementById('error-message').textContent = decodeURIComponent(errorMsg);
+        }
+        if (errorCode) {
+            document.getElementById('error-code').textContent = '错误代码: ' + errorCode;
+        }
+    </script>
+</body>
+</html>
