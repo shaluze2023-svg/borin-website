@@ -314,7 +314,7 @@
             ).join('');
         }
         
-        function openPost(id) { location.href = 'p/' + id + '.html'; }
+        function openPost(id) { location.href = 'p/?id=' + id; }
         
         async function deletePost(id) {
             if (!isAuthenticated) { showToast('请先验证密码', true); return; }
