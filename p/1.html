@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帖子详情 - ぼりんの网站</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg-card: rgba(255, 255, 255, 0.8); --text-primary: #1a1a2e; --text-secondary: #666680; --accent: #fb7299; --border: rgba(100, 120, 200, 0.2); --shadow: rgba(0, 0, 0, 0.1); --gradient-1: #e8e8f0; --gradient-2: #d0d0e0; --gradient-3: #c0c0d8; --gradient-4: #e8e8f0; --header-bg: rgba(255, 255, 255, 0.9); --footer-bg: rgba(245, 245, 250, 0.9); --time-bg: rgba(230, 230, 240, 0.8); --input-bg: rgba(230, 230, 240, 0.6); }
+        [data-theme="dark"] { --bg-card: rgba(20, 25, 50, 0.6); --text-primary: #f0f0f0; --text-secondary: #a0a0c0; --gradient-1: #1a1a2e; --gradient-2: #16213e; --gradient-3: #0f3460; --gradient-4: #1a1a2e; --header-bg: rgba(10, 10, 20, 0.7); --footer-bg: rgba(10, 10, 20, 0.85); --time-bg: rgba(30, 40, 70, 0.5); --input-bg: rgba(30, 40, 70, 0.5); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { min-height: 100vh; background: linear-gradient(-45deg, var(--gradient-1), var(--gradient-2), var(--gradient-3), var(--gradient-4)); background-size: 400% 400%; animation: gradientBG 15s ease infinite; color: var(--text-primary); display: flex; flex-direction: column; transition: all 0.3s ease; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: var(--header-bg); backdrop-filter: blur(10px); box-shadow: 0 4px 20px var(--shadow); position: sticky; top: 0; z-index: 100; }
+        .menu-btn, .search-btn { background: none; border: none; color: var(--text-primary); font-size: 1.8rem; cursor: pointer; padding: 10px; border-radius: 50%; }
+        .title { font-size: 2.2rem; font-weight: 700; letter-spacing: 2px; background: linear-gradient(to right, #ff7e5f, #feb47b, #86a8e7, #91eae4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        main { flex: 1; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { max-width: 800px; width: 100%; }
+        .back-btn { display: inline-flex; align-items: center; background: var(--bg-card); color: var(--text-primary); padding: 10px 20px; border-radius: 30px; text-decoration: none; border: 1px solid var(--border); margin-bottom: 20px; }
+        .back-btn i { margin-right: 8px; }
+        .post-card { background: var(--bg-card); border-radius: 20px; padding: 30px; border: 1px solid var(--border); margin-bottom: 20px; }
+        .post-header { margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        .post-title { font-size: 2rem; margin-bottom: 15px; }
+        .post-meta { display: flex; flex-wrap: wrap; gap: 15px; color: var(--text-secondary); font-size: 0.9rem; }
+        .post-tags { display: flex; gap: 8px; }
+        .post-tag { color: #fb7299; }
+        .post-date { display: flex; align-items: center; gap: 5px; }
+        .post-time-ago { color: #86a8e7; }
+        .post-body { line-height: 1.8; font-size: 1.1rem; white-space: pre-wrap; }
+        .post-images { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 25px; }
+        .post-images img { max-width: 100%; border-radius: 15px; cursor: pointer; }
+        .comments-section { background: var(--bg-card); border-radius: 20px; padding: 30px; border: 1px solid var(--border); }
+        .comments-title { font-size: 1.5rem; color: #feb47b; margin-bottom: 20px; }
+        .comment-form { margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid var(--border); }
+        .form-input { width: 100%; padding: 12px 15px; background: var(--input-bg); border: 2px solid var(--border); border-radius: 10px; color: var(--text-primary); font-size: 1rem; margin-bottom: 15px; }
+        .form-input:focus { outline: none; border-color: #fb7299; }
+        .form-textarea { min-height: 100px; resize: vertical; }
+        .submit-btn { padding: 12px 30px; background: linear-gradient(135deg, #fb7299, #ff7e5f); color: white; border: none; border-radius: 10px; font-size: 1rem; cursor: pointer; }
+        .submit-btn:hover { transform: translateY(-2px); }
+        .comments-list { display: flex; flex-direction: column; gap: 15px; }
+        .comment-item { background: var(--input-bg); border-radius: 15px; padding: 20px; }
+        .comment-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .comment-author { font-weight: 600; color: #86a8e7; }
+        .comment-date { font-size: 0.85rem; color: var(--text-secondary); }
+        .comment-content { line-height: 1.6; }
+        .no-comments { text-align: center; color: var(--text-secondary); padding: 30px; }
+        .no-comments i { font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.5; }
+        .not-found { text-align: center; padding: 50px; }
+        .not-found i { font-size: 4rem; color: var(--text-secondary); margin-bottom: 20px; }
+        .loading { text-align: center; padding: 50px; color: var(--text-secondary); }
+        .loading i { font-size: 2rem; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        footer { display: flex; flex-direction: column; align-items: center; padding: 25px; background: var(--footer-bg); color: var(--text-secondary); border-top: 1px solid var(--border); }
+        .time-display { display: flex; align-items: center; font-size: 1.6rem; color: var(--text-primary); background: var(--time-bg); padding: 15px 30px; border-radius: 15px; }
+        .time-label { color: #86a8e7; margin-right: 10px; }
+        .time-value { color: #feb47b; }
+        .copyright { margin-top: 20px; font-size: 1rem; }
+        .time-icon { margin-right: 15px; font-size: 1.8rem; color: #ff7e5f; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 15px 30px; border-radius: 10px; z-index: 4000; transition: transform 0.3s ease; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+    </style>
+<script src="protect.js"></script></head>
+<body>
+    <header>
+        <button class="menu-btn" onclick="location.href='../post.html'"><i class="fas fa-arrow-left"></i></button>
+        <h1 class="title">帖子详情</h1>
+        <button class="search-btn" onclick="location.href='../search.html'"><i class="fas fa-search"></i></button>
+    </header>
+    
+    <main>
+        <div class="container" id="container">
+            <a href="../post.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回帖子列表</a>
+            <div class="loading" id="loading"><i class="fas fa-spinner"></i><p>加载中...</p></div>
+            <div class="post-card" id="postCard" style="display:none"></div>
+            <div class="comments-section" id="commentsSection" style="display:none">
+                <h3 class="comments-title"><i class="fas fa-comments"></i> 评论区</h3>
+                <div class="comment-form">
+                    <input type="text" class="form-input" id="commentAuthor" placeholder="你的昵称" maxlength="20">
+                    <textarea class="form-input form-textarea" id="commentContent" placeholder="写下你的评论..."></textarea>
+                    <button class="submit-btn" onclick="submitComment()"><i class="fas fa-paper-plane"></i> 发表评论</button>
+                </div>
+                <div class="comments-list" id="commentsList"></div>
+            </div>
+        </div>
+    </main>
+    
+    <div class="toast" id="toast"></div>
+    
+    <footer>
+        <div class="time-display"><i class="fas fa-clock time-icon"></i><span class="time-label">北京时间：</span><span class="time-value" id="beijing-time">00:00:00</span></div>
+        <div class="copyright">© 2026 ぼりんの网站 | 帖子详情</div>
+    </footer>
+    
+    <script>
+        // 配置
+        const _c = {b:"69a8140243b1c97be9b266ab",k:"H2JFMGgdaWvqVWl0L1eFy.Vo/pkShpTWl3F.t2OEse8bkcC97anhy"};
+        const API_URL = "https://api.jsonbin.io/v3/b/" + _c.b;
+        
+        // 获取帖子ID
+        const postId = parseInt(location.pathname.split('/').pop().replace('.html', ''));
+        let currentPost = null;
+        let allPosts = [];
+        
+        // 工具函数
+        function getBeijingHour() { const now = new Date(); const utc = now.getTime() + (now.getTimezoneOffset() * 60000); return new Date(utc + (3600000 * 8)).getHours(); }
+        function initTheme() { const saved = getCookie('theme'); if (saved) applyTheme(saved); else applyTheme(getBeijingHour() >= 6 && getBeijingHour() < 18 ? 'light' : 'dark'); }
+        function applyTheme(theme) { document.documentElement.setAttribute('data-theme', theme); }
+        function setCookie(name, value, days) { document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + new Date(Date.now() + days * 864e5).toUTCString() + '; path=/'; }
+        function getCookie(name) { const c = document.cookie.split('; ').find(row => row.startsWith(name + '=')); return c ? decodeURIComponent(c.split('=')[1]) : null; }
+        
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+        
+        function getTimeAgo(dateStr) {
+            const diff = Date.now() - new Date(dateStr).getTime();
+            const mins = Math.floor(diff / 60000), hours = Math.floor(diff / 3600000), days = Math.floor(diff / 86400000);
+            if (days > 30) return Math.floor(days / 30) + '个月前';
+            if (days > 0) return days + '天前';
+            if (hours > 0) return hours + '小时前';
+            if (mins > 0) return mins + '分钟前';
+            return '刚刚';
+        }
+        
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0') + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+        }
+        
+        initTheme();
+        
+        // 加载帖子
+        async function loadPost() {
+            try {
+                const res = await fetch(API_URL + '/latest', {
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': '$2a$10$' + _c.k }
+                });
+                if (res.ok) {
+                    allPosts = (await res.json()).record.posts || [];
+                } else {
+                    allPosts = JSON.parse(localStorage.getItem('borin_posts') || '[]');
+                }
+            } catch (e) {
+                allPosts = JSON.parse(localStorage.getItem('borin_posts') || '[]');
+            }
+            
+            currentPost = allPosts.find(p => p.id === postId);
+            
+            document.getElementById('loading').style.display = 'none';
+            
+            if (!currentPost) {
+                document.getElementById('postCard').innerHTML = '<div class="not-found"><i class="fas fa-exclamation-circle"></i><p>帖子不存在</p><a href="../post.html" class="back-btn" style="margin-top:20px"><i class="fas fa-arrow-left"></i> 返回</a></div>';
+                document.getElementById('postCard').style.display = 'block';
+                return;
+            }
+            
+            document.title = currentPost.title + ' - ぼりんの网站';
+            
+            let html = '<div class="post-header"><h2 class="post-title">' + currentPost.title + '</h2><div class="post-meta"><div class="post-tags">' + currentPost.tags.map(t => '<span class="post-tag">#' + t + '</span>').join(' ') + '</div><div class="post-date"><i class="fas fa-calendar"></i> ' + formatDate(currentPost.date) + ' <span class="post-time-ago">(' + getTimeAgo(currentPost.date) + ')</span></div></div></div><div class="post-body">' + currentPost.content + '</div>';
+            
+            if (currentPost.images && currentPost.images.length) {
+                html += '<div class="post-images">' + currentPost.images.map(img => '<img src="' + img + '" onclick="window.open(this.src)">').join('') + '</div>';
+            }
+            
+            document.getElementById('postCard').innerHTML = html;
+            document.getElementById('postCard').style.display = 'block';
+            document.getElementById('commentsSection').style.display = 'block';
+            
+            renderComments();
+        }
+        
+        function renderComments() {
+            const list = document.getElementById('commentsList');
+            const comments = currentPost.comments || [];
+            
+            if (!comments.length) {
+                list.innerHTML = '<div class="no-comments"><i class="fas fa-comment-slash"></i><p>暂无评论</p></div>';
+                return;
+            }
+            
+            list.innerHTML = comments.map(c => '<div class="comment-item"><div class="comment-header"><span class="comment-author">' + c.author + '</span><span class="comment-date">' + formatDate(c.date) + '</span></div><div class="comment-content">' + c.content + '</div></div>').join('');
+        }
+        
+        async function submitComment() {
+            const author = document.getElementById('commentAuthor').value.trim();
+            const content = document.getElementById('commentContent').value.trim();
+            
+            if (!author) return showToast('请输入昵称');
+            if (!content) return showToast('请输入评论内容');
+            
+            if (!currentPost.comments) currentPost.comments = [];
+            currentPost.comments.push({ author, content, date: new Date().toISOString() });
+            
+            // 更新allPosts并保存
+            const idx = allPosts.findIndex(p => p.id === postId);
+            if (idx !== -1) {
+                allPosts[idx] = currentPost;
+                localStorage.setItem('borin_posts', JSON.stringify(allPosts));
+                try {
+                    await fetch(API_URL, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'X-Master-Key': "$2a$10$" + _c.k },
+                        body: JSON.stringify({posts: allPosts})
+                    });
+                } catch (e) {}
+            }
+            
+            document.getElementById('commentAuthor').value = '';
+            document.getElementById('commentContent').value = '';
+            renderComments();
+            showToast('评论成功！');
+        }
+        
+        function updateTime() {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const bj = new Date(utc + (3600000 * 8));
+            document.getElementById('beijing-time').textContent = String(bj.getHours()).padStart(2,'0') + ':' + String(bj.getMinutes()).padStart(2,'0') + ':' + String(bj.getSeconds()).padStart(2,'0');
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        loadPost();
+    </script>
+</body>
+</html>

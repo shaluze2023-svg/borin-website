@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帖子 - ぼりんの网站</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-card: rgba(255, 255, 255, 0.8); --text-primary: #1a1a2e; --text-secondary: #666680; --accent: #fb7299; --border: rgba(100, 120, 200, 0.2); --shadow: rgba(0, 0, 0, 0.1); --gradient-1: #e8e8f0; --gradient-2: #d0d0e0; --gradient-3: #c0c0d8; --gradient-4: #e8e8f0; --header-bg: rgba(255, 255, 255, 0.9); --sidebar-bg: rgba(245, 245, 250, 0.95); --footer-bg: rgba(245, 245, 250, 0.9); --time-bg: rgba(230, 230, 240, 0.8); --input-bg: rgba(230, 230, 240, 0.6);
+        }
+        [data-theme="dark"] {
+            --bg-card: rgba(20, 25, 50, 0.6); --text-primary: #f0f0f0; --text-secondary: #a0a0c0; --gradient-1: #1a1a2e; --gradient-2: #16213e; --gradient-3: #0f3460; --gradient-4: #1a1a2e; --header-bg: rgba(10, 10, 20, 0.7); --sidebar-bg: rgba(15, 20, 40, 0.95); --footer-bg: rgba(10, 10, 20, 0.85); --time-bg: rgba(30, 40, 70, 0.5); --input-bg: rgba(30, 40, 70, 0.5);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { min-height: 100vh; background: linear-gradient(-45deg, var(--gradient-1), var(--gradient-2), var(--gradient-3), var(--gradient-4)); background-size: 400% 400%; animation: gradientBG 15s ease infinite; color: var(--text-primary); overflow-x: hidden; display: flex; flex-direction: column; transition: all 0.3s ease; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: var(--header-bg); backdrop-filter: blur(10px); box-shadow: 0 4px 20px var(--shadow); position: sticky; top: 0; z-index: 100; }
+        .menu-btn, .search-btn { background: none; border: none; color: var(--text-primary); font-size: 1.8rem; cursor: pointer; padding: 10px; border-radius: 50%; }
+        .title { font-size: 2.2rem; font-weight: 700; letter-spacing: 2px; background: linear-gradient(to right, #ff7e5f, #feb47b, #86a8e7, #91eae4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar { position: fixed; top: 0; left: -350px; width: 350px; height: 100vh; background: var(--sidebar-bg); backdrop-filter: blur(10px); box-shadow: 5px 0 30px var(--shadow); z-index: 1000; transition: left 0.4s ease; display: flex; flex-direction: column; overflow-y: auto; padding: 20px; }
+        .sidebar.open { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); }
+        .close-btn { background: none; border: none; color: var(--text-primary); font-size: 2rem; cursor: pointer; }
+        .sidebar-title { font-size: 1.8rem; background: linear-gradient(to right, #86a8e7, #91eae4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-menu { padding: 30px 0; }
+        .menu-item { padding: 15px 20px; margin: 10px 0; border-radius: 10px; display: flex; align-items: center; cursor: pointer; font-size: 1.2rem; background: var(--bg-card); border: 1px solid var(--border); }
+        .menu-item:hover { background: rgba(251, 114, 153, 0.2); transform: translateX(10px); }
+        .menu-item i { margin-right: 15px; font-size: 1.5rem; width: 30px; text-align: center; }
+        .bilibili-icon { color: #fb7299; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); z-index: 999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .overlay.active { opacity: 1; visibility: visible; }
+        main { flex: 1; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
+        .post-container { max-width: 900px; width: 100%; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .page-title { font-size: 2.5rem; color: #feb47b; }
+        .back-btn { display: inline-flex; align-items: center; background: var(--bg-card); color: var(--text-primary); padding: 10px 20px; border-radius: 30px; text-decoration: none; border: 1px solid var(--border); }
+        .tags-section { background: var(--bg-card); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .tags-title { font-size: 1.2rem; color: #86a8e7; margin-bottom: 15px; }
+        .tags-list { display: flex; flex-wrap: wrap; gap: 10px; }
+        .tag-item { padding: 8px 16px; background: var(--input-bg); border-radius: 20px; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; }
+        .tag-item:hover, .tag-item.active { border-color: #fb7299; background: rgba(251, 114, 153, 0.1); }
+        .tag-count { background: #fb7299; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; margin-left: 5px; }
+        .posts-list { display: flex; flex-direction: column; gap: 20px; }
+        .post-card { background: var(--bg-card); border-radius: 15px; padding: 25px; border: 1px solid var(--border); transition: all 0.3s ease; position: relative; }
+        .post-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px var(--shadow); }
+        .post-title { font-size: 1.5rem; margin-bottom: 10px; color: var(--text-primary); cursor: pointer; }
+        .post-excerpt { color: var(--text-secondary); margin-bottom: 15px; line-height: 1.6; }
+        .post-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; color: var(--text-secondary); flex-wrap: wrap; gap: 10px; }
+        .post-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        .post-tag { color: #fb7299; }
+        .post-actions { position: absolute; top: 15px; right: 15px; display: none; gap: 10px; }
+        .post-card:hover .post-actions { display: flex; }
+        .action-btn { background: var(--input-bg); border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; color: var(--text-secondary); transition: all 0.3s; }
+        .action-btn:hover { background: var(--accent); color: white; }
+        .action-btn.delete:hover { background: #e74c3c; }
+        .no-posts { text-align: center; padding: 50px; color: var(--text-secondary); }
+        .no-posts i { font-size: 3rem; margin-bottom: 15px; display: block; opacity: 0.5; }
+        .fab-btn { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #fb7299, #ff7e5f); color: white; border: none; font-size: 1.8rem; cursor: pointer; box-shadow: 0 5px 20px rgba(251, 114, 153, 0.4); z-index: 100; display: flex; align-items: center; justify-content: center; }
+        .fab-btn:hover { transform: scale(1.1) rotate(90deg); }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal.show { display: flex; }
+        .modal-content { background: var(--bg-card); border-radius: 20px; padding: 30px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .modal-title { font-size: 1.8rem; color: #feb47b; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; color: var(--text-secondary); cursor: pointer; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; color: #86a8e7; font-size: 1rem; }
+        .form-input { width: 100%; padding: 12px 15px; background: var(--input-bg); border: 2px solid var(--border); border-radius: 10px; color: var(--text-primary); font-size: 1rem; }
+        .form-input:focus { outline: none; border-color: #fb7299; }
+        .form-textarea { min-height: 150px; resize: vertical; }
+        .image-preview { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; }
+        .image-preview img { width: 80px; height: 80px; object-fit: cover; border-radius: 10px; }
+        .add-image-btn { padding: 10px 20px; background: var(--input-bg); border: 2px dashed var(--border); border-radius: 10px; color: var(--text-secondary); cursor: pointer; display: inline-block; }
+        .submit-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #fb7299, #ff7e5f); color: white; border: none; border-radius: 10px; font-size: 1.1rem; cursor: pointer; }
+        .submit-btn:hover { transform: translateY(-2px); }
+        .auth-section { background: rgba(251, 114, 153, 0.1); border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 3000; }
+        .loading-box { background: var(--bg-card); padding: 30px 50px; border-radius: 15px; text-align: center; }
+        .loading-box i { font-size: 2rem; color: #fb7299; margin-bottom: 15px; display: block; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 15px 30px; border-radius: 10px; z-index: 4000; transition: transform 0.3s; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: #e74c3c; }
+        footer { display: flex; flex-direction: column; align-items: center; padding: 25px; background: var(--footer-bg); border-top: 1px solid var(--border); }
+        .time-display { display: flex; align-items: center; font-size: 1.6rem; color: var(--text-primary); background: var(--time-bg); padding: 15px 30px; border-radius: 15px; }
+        .time-label { color: #86a8e7; margin-right: 10px; }
+        .time-value { color: #feb47b; }
+        .copyright { margin-top: 20px; color: var(--text-secondary); }
+        .time-icon { margin-right: 15px; color: #ff7e5f; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @media (max-width: 768px) { .page-title { font-size: 2rem; } .post-actions { display: flex; } }
+    </style>
+<script src="protect.js"></script></head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">ぼりんの菜单</h2>
+            <button class="close-btn" onclick="closeSidebar()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-item" onclick="navigate('bilibili.html')"><i class="fab fa-bilibili bilibili-icon"></i><span>B站热门视频</span></div>
+            <div class="menu-item" onclick="navigate('post.html')"><i class="fas fa-newspaper"></i><span>帖子动态</span></div>
+            <div class="menu-item" onclick="navigate('settings.html')"><i class="fas fa-cog"></i><span>设置</span></div>
+            <div class="menu-item" onclick="navigate('about.html')"><i class="fas fa-info-circle"></i><span>关于我们</span></div>
+        </div>
+    </div>
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+    <div class="loading-overlay" id="loading"><div class="loading-box"><i class="fas fa-spinner"></i><p id="loadingText">加载中...</p></div></div>
+    <div class="toast" id="toast"></div>
+    <button class="fab-btn" onclick="openEditor()"><i class="fas fa-pencil-alt"></i></button>
+    
+    <div class="modal" id="editorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="editorTitle">发布新帖子</h3>
+                <button class="modal-close" onclick="closeEditor()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="auth-section" id="authSection">
+                <p>请输入管理密码</p>
+                <input type="password" class="form-input" id="authKey" placeholder="输入密码..." style="max-width:300px;margin:0 auto;display:block">
+                <button class="submit-btn" style="max-width:200px;margin:15px auto 0;display:block" onclick="verifyKey()">验证</button>
+            </div>
+            <form id="postForm" style="display:none" onsubmit="submitPost(event)">
+                <input type="hidden" id="editPostId">
+                <div class="form-group">
+                    <label class="form-label">帖子标题</label>
+                    <input type="text" class="form-input" id="postTitle" placeholder="输入标题..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">标签 (如: #日常 #技术)</label>
+                    <input type="text" class="form-input" id="postTags" placeholder="#日常 #分享...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">帖子内容</label>
+                    <textarea class="form-input form-textarea" id="postContent" placeholder="写下你的想法..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">添加图片 (最多5张，可选)</label>
+                    <label class="add-image-btn"><i class="fas fa-image"></i> 选择图片<input type="file" id="imageInput" accept="image/*" multiple style="display:none" onchange="handleImages(event)"></label>
+                    <div class="image-preview" id="imagePreview"></div>
+                </div>
+                <button type="submit" class="submit-btn" id="submitBtn">发布帖子</button>
+            </form>
+        </div>
+    </div>
+    
+    <header>
+        <button class="menu-btn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+        <h1 class="title">帖子动态</h1>
+        <button class="search-btn" onclick="location.href='search.html'"><i class="fas fa-search"></i></button>
+    </header>
+    
+    <main>
+        <div class="post-container">
+            <div class="page-header">
+                <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回首页</a>
+                <h2 class="page-title">我的帖子</h2>
+            </div>
+            <div class="tags-section">
+                <h3 class="tags-title"><i class="fas fa-tags"></i> 标签分类</h3>
+                <div class="tags-list" id="tagsList"></div>
+            </div>
+            <div class="posts-list" id="postsList"></div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="time-display"><i class="fas fa-clock time-icon"></i><span class="time-label">北京时间：</span><span class="time-value" id="beijing-time">00:00:00</span></div>
+        <div class="copyright">© 2026 ぼりんの网站 | 帖子动态</div>
+    </footer>
+    
+    <script>
+        // ===== 配置 =====
+        // API配置分散存储，增加安全性
+        const _c = {b:'69a8140243b1c97be9b266ab',k:'H2JFMGgdaWvqVWl0L1eFy.Vo/pkShpTWl3F.t2OEse8bkcC97anhy'};
+        const API_URL = 'https://api.jsonbin.io/v3/b/' + _c.b;
+        
+        // 密码哈希 (lbl716619528688201262)
+        const KEY_HASH = 'd0dd45b40272a6e87287a6a8b19414f10f9574fa09fe387b375cb365bbd681f1';
+        
+        let posts = [], currentFilter = null, uploadedImages = [], isAuthenticated = false, editingId = null;
+        
+        // ===== 工具函数 =====
+        function getBeijingHour() { const n = new Date(), u = n.getTime() + n.getTimezoneOffset() * 60000; return new Date(u + 28800000).getHours(); }
+        function initTheme() { const s = getCookie('theme'); applyTheme(s || (getBeijingHour() >= 6 && getBeijingHour() < 18 ? 'light' : 'dark')); }
+        function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); }
+        function getCookie(n) { const c = document.cookie.split('; ').find(r => r.startsWith(n + '=')); return c ? decodeURIComponent(c.split('=')[1]) : null; }
+        
+        function showLoading(show, text = '加载中...') { document.getElementById('loadingText').textContent = text; document.getElementById('loading').style.display = show ? 'flex' : 'none'; }
+        function showToast(msg, isError = false) { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show' + (isError ? ' error' : ''); setTimeout(() => t.classList.remove('show'), 2500); }
+        
+        function getTimeAgo(d) { const diff = Date.now() - new Date(d).getTime(), m = Math.floor(diff/60000), h = Math.floor(diff/3600000), dd = Math.floor(diff/86400000); if(dd>30) return Math.floor(dd/30)+'个月前'; if(dd>0) return dd+'天前'; if(h>0) return h+'小时前'; if(m>0) return m+'分钟前'; return '刚刚'; }
+        function formatDate(d) { const n = new Date(d); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')+' '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'); }
+        function extractTags(t) { return (t.match(/#[\u4e00-\u9fa5a-zA-Z0-9_]+/g) || []).map(x => x.substring(1)); }
+        async function sha256(m) { const b = new TextEncoder().encode(m), h = await crypto.subtle.digest('SHA-256', b); return Array.from(new Uint8Array(h)).map(x => x.toString(16).padStart(2,'0')).join(''); }
+        
+        function getHeaders() { return { 'Content-Type': 'application/json', 'X-Master-Key': '$2a$10$' + _c.k }; }
+        
+        initTheme();
+        
+        // ===== 数据操作 =====
+        async function loadPosts() {
+            showLoading(true, '加载帖子...');
+            try {
+                const res = await fetch(API_URL + '/latest', { headers: getHeaders() });
+                if (res.ok) { const d = await res.json(); posts = d.record.posts || []; }
+                else { posts = JSON.parse(localStorage.getItem('borin_posts') || '[]'); }
+            } catch(e) { posts = JSON.parse(localStorage.getItem('borin_posts') || '[]'); }
+            showLoading(false);
+            renderTags();
+            renderPosts();
+        }
+        
+        async function savePosts() {
+            localStorage.setItem('borin_posts', JSON.stringify(posts));
+            try { await fetch(API_URL, { method: 'PUT', headers: getHeaders(), body: JSON.stringify({posts}) }); }
+            catch(e) { console.log('云端同步失败'); }
+        }
+        
+        // ===== UI =====
+        function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('active'); }
+        function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); }
+        function navigate(p) { closeSidebar(); setTimeout(() => location.href = p, 200); }
+        
+        async function verifyKey() {
+            const input = document.getElementById('authKey').value;
+            if (!input) return showToast('请输入密码', true);
+            if (await sha256(input) === KEY_HASH) {
+                isAuthenticated = true;
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('postForm').style.display = 'block';
+            } else { showToast('密码错误', true); }
+        }
+        
+        function openEditor(id = null) {
+            editingId = id;
+            document.getElementById('editorModal').classList.add('show');
+            document.getElementById('editorTitle').textContent = id ? '编辑帖子' : '发布新帖子';
+            document.getElementById('submitBtn').textContent = id ? '保存修改' : '发布帖子';
+            
+            if (id) {
+                const post = posts.find(p => p.id === id);
+                if (post) {
+                    document.getElementById('postTitle').value = post.title;
+                    document.getElementById('postTags').value = post.tags.map(t => '#' + t).join(' ');
+                    document.getElementById('postContent').value = post.content;
+                    document.getElementById('editPostId').value = id;
+                    uploadedImages = post.images || [];
+                    renderImagePreview();
+                }
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('postForm').style.display = 'block';
+            } else {
+                document.getElementById('editPostId').value = '';
+                if (isAuthenticated) {
+                    document.getElementById('authSection').style.display = 'none';
+                    document.getElementById('postForm').style.display = 'block';
+                } else {
+                    document.getElementById('authSection').style.display = 'block';
+                    document.getElementById('postForm').style.display = 'none';
+                }
+            }
+        }
+        
+        function closeEditor() {
+            document.getElementById('editorModal').classList.remove('show');
+            document.getElementById('authKey').value = '';
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postTags').value = '';
+            document.getElementById('postContent').value = '';
+            document.getElementById('imagePreview').innerHTML = '';
+            uploadedImages = [];
+            editingId = null;
+        }
+        
+        function handleImages(e) {
+            const files = e.target.files;
+            for (let file of files) {
+                if (uploadedImages.length >= 5) { showToast('最多5张图片', true); break; }
+                const reader = new FileReader();
+                reader.onload = ev => { uploadedImages.push(ev.target.result); renderImagePreview(); };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function renderImagePreview() {
+            document.getElementById('imagePreview').innerHTML = uploadedImages.map((img, i) => 
+                '<div style="position:relative;display:inline-block"><img src="' + img + '"><button type="button" onclick="removeImage(' + i + ')" style="position:absolute;top:-5px;right:-5px;background:#e74c3c;color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer">×</button></div>'
+            ).join('');
+        }
+        
+        function removeImage(i) { uploadedImages.splice(i, 1); renderImagePreview(); }
+        
+        function renderTags() {
+            const tc = {};
+            posts.forEach(p => p.tags.forEach(t => tc[t] = (tc[t] || 0) + 1));
+            const list = document.getElementById('tagsList');
+            if (!Object.keys(tc).length) { list.innerHTML = '<span style="color:var(--text-secondary)">暂无标签</span>'; return; }
+            let html = '<div class="tag-item' + (currentFilter === null ? ' active' : '') + '" onclick="filterByTag(null)">全部 <span class="tag-count">' + posts.length + '</span></div>';
+            for (let t in tc) html += '<div class="tag-item' + (currentFilter === t ? ' active' : '') + '" onclick="filterByTag(\'' + t + '\')">#' + t + ' <span class="tag-count">' + tc[t] + '</span></div>';
+            list.innerHTML = html;
+        }
+        
+        function filterByTag(t) { currentFilter = t; renderTags(); renderPosts(); }
+        
+        function renderPosts() {
+            const list = document.getElementById('postsList');
+            let filtered = currentFilter ? posts.filter(p => p.tags.includes(currentFilter)) : posts;
+            if (!filtered.length) { list.innerHTML = '<div class="no-posts"><i class="fas fa-inbox"></i><p>暂无帖子</p><p style="font-size:1rem;margin-top:10px">点击右下角按钮发布吧！</p></div>'; return; }
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            list.innerHTML = filtered.map(p => 
+                '<div class="post-card"><div class="post-actions"><button class="action-btn" onclick="event.stopPropagation();openEditor(' + p.id + ')" title="编辑"><i class="fas fa-edit"></i></button><button class="action-btn delete" onclick="event.stopPropagation();deletePost(' + p.id + ')" title="删除"><i class="fas fa-trash"></i></button></div><h3 class="post-title" onclick="openPost(' + p.id + ')">' + p.title + '</h3><p class="post-excerpt">' + (p.content.length > 150 ? p.content.substring(0, 150) + '...' : p.content) + '</p><div class="post-meta"><div class="post-tags">' + p.tags.map(t => '<span class="post-tag">#' + t + '</span>').join(' ') + '</div><div style="display:flex;align-items:center;gap:5px"><i class="fas fa-calendar"></i> ' + formatDate(p.date) + ' <span style="color:#86a8e7">(' + getTimeAgo(p.date) + ')</span></div></div></div>'
+            ).join('');
+        }
+        
+        function openPost(id) { location.href = 'p/' + id + '.html'; }
+        
+        async function deletePost(id) {
+            if (!isAuthenticated) { showToast('请先验证密码', true); return; }
+            if (!confirm('确定要删除这篇帖子吗？')) return;
+            posts = posts.filter(p => p.id !== id);
+            await savePosts();
+            renderTags();
+            renderPosts();
+            showToast('删除成功');
+        }
+        
+        async function submitPost(e) {
+            e.preventDefault();
+            if (!isAuthenticated) return showToast('请先验证密码', true);
+            const title = document.getElementById('postTitle').value.trim();
+            const content = document.getElementById('postContent').value.trim();
+            if (!title || !content) return showToast('请填写标题和内容', true);
+            
+            showLoading(true, editingId ? '保存中...' : '发布中...');
+            
+            const editId = document.getElementById('editPostId').value;
+            if (editId) {
+                const idx = posts.findIndex(p => p.id === parseInt(editId));
+                if (idx !== -1) {
+                    posts[idx] = { ...posts[idx], title, content, tags: extractTags(document.getElementById('postTags').value), images: uploadedImages };
+                }
+            } else {
+                posts.push({
+                    id: posts.length ? Math.max(...posts.map(p => p.id)) + 1 : 1,
+                    title, content,
+                    tags: extractTags(document.getElementById('postTags').value),
+                    images: uploadedImages.slice(0, 5),
+                    date: new Date().toISOString(),
+                    comments: []
+                });
+            }
+            
+            await savePosts();
+            showLoading(false);
+            closeEditor();
+            renderTags();
+            renderPosts();
+            showToast(editingId ? '修改成功！' : '发布成功！');
+        }
+        
+        function updateTime() {
+            const n = new Date(), u = n.getTime() + n.getTimezoneOffset() * 60000, bj = new Date(u + 28800000);
+            document.getElementById('beijing-time').textContent = String(bj.getHours()).padStart(2,'0')+':'+String(bj.getMinutes()).padStart(2,'0')+':'+String(bj.getSeconds()).padStart(2,'0');
+        }
+        updateTime(); setInterval(updateTime, 1000);
+        
+        loadPosts();
+    </script>
+</body>
+</html>
