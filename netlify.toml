@@ -1,9 +1,10 @@
 [build]
   publish = "."
 
+# 仅对已知路由进行重写，其他走404
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/p/*"
+  to = "/p/:splat"
   status = 200
 
 [[headers]]

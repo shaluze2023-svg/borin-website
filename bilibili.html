@@ -227,7 +227,7 @@
         // 获取B站热门视频
         async function fetchBilibiliHot() {
             try {
-                const response = await fetch('https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all');
+                const response = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all'));
                 const data = await response.json();
                 if (data.code === 0 && data.data && data.data.list) {
                     return data.data.list.slice(0, 10).map(item => ({
