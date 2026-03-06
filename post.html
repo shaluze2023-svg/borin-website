@@ -191,7 +191,6 @@
     </main>
     
     <footer>
-        <div class="time-display"><i class="fas fa-clock time-icon"></i><span class="time-label">北京时间：</span><span class="time-value" id="beijing-time">00:00:00</span></div>
         <div class="copyright">© 2026 ぼりんの网站 | 帖子动态</div>
     </footer>
     
@@ -385,11 +384,8 @@
             showToast(editingId ? '修改成功！' : '发布成功！');
         }
         
-        function updateTime() {
             const n = new Date(), u = n.getTime() + n.getTimezoneOffset() * 60000, bj = new Date(u + 28800000);
-            document.getElementById('beijing-time').textContent = String(bj.getHours()).padStart(2,'0')+':'+String(bj.getMinutes()).padStart(2,'0')+':'+String(bj.getSeconds()).padStart(2,'0');
         }
-        updateTime(); setInterval(updateTime, 1000);
         
         loadPosts();
     </script>
