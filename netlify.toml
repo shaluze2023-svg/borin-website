@@ -1,7 +1,12 @@
 [build]
   publish = "."
+  functions = "netlify/functions"
 
-# 仅对已知路由进行重写，其他走404
+[[redirects]]
+  from = "/api/bilibili"
+  to = "/.netlify/functions/bilibili"
+  status = 200
+
 [[redirects]]
   from = "/p/*"
   to = "/p/:splat"
