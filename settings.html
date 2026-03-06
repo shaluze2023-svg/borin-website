@@ -124,7 +124,7 @@
     </div>
     <div class="overlay" id="overlay"></div>
     <div class="toast" id="toast">设置已保存</div>
-        <h1 class="title">设置</h1>
+        <h1 class="title"><span class="title-icon">⚙️</span>系统设置</h1>
     </header>
     <main>
         <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回首页</a>
@@ -147,7 +147,6 @@
                         <span>自动切换</span>
                     </div>
                 </div>
-                <p class="setting-desc" style="margin-top: 10px;">自动模式：北京时间 6:00-18:00 使用浅色，其他时间深色</p>
             </div>
             
             <div class="setting-item">
@@ -204,7 +203,6 @@
         </div>
     </main>
     <footer>
-        <div class="time-display"><i class="fas fa-clock time-icon"></i><span class="time-label">北京时间：</span><span class="time-value" id="beijing-time">00:00:00</span></div>
         <div class="copyright">© 2026 ぼりんの网站 | 设置页面</div>
     </footer>
     <script>
@@ -299,8 +297,6 @@
             setTimeout(() => { toast.classList.remove('show'); }, 2000);
         }
         
-        function updateTimeDisplay() { const now = new Date(); const utc = now.getTime() + (now.getTimezoneOffset() * 60000); const bj = new Date(utc + (3600000 * 8)); document.getElementById('beijing-time').textContent = bj.getHours().toString().padStart(2, '0') + ':' + bj.getMinutes().toString().padStart(2, '0') + ':' + bj.getSeconds().toString().padStart(2, '0'); }
-        updateTimeDisplay(); setInterval(updateTimeDisplay, 1000);
         document.getElementById('searchToggle').addEventListener('click', function() { window.location.href = 'search.html'; });
         
         loadSettings();
