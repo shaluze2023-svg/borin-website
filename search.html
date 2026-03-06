@@ -1,6 +1,26 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+        <script>
+        (function() {
+            var theme = "dark";
+            var c = document.cookie.split("; ");
+            for (var i = 0; i < c.length; i++) {
+                if (c[i].indexOf("theme=") === 0) {
+                    theme = decodeURIComponent(c[i].substring(6));
+                    break;
+                }
+            }
+            if (c.every(function(x) { return x.indexOf("theme=") !== 0; })) {
+                var now = new Date();
+                var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                var bj = new Date(utc + 28800000);
+                var hour = bj.getHours();
+                theme = (hour >= 6 && hour < 18) ? "light" : "dark";
+            }
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+        </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>搜索 - ぼりんの网站</title>
