@@ -1,0 +1,34 @@
+name: Fetch Bilibili Hot Videos
+
+on:
+  schedule:
+    # 每6小时执行一次
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # 手动触发
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch Bilibili videos
+        env:
+          JSONBIN_API_KEY: ${{ secrets.JSONBIN_API_KEY }}
+          JSONBIN_BIN_ID: ${{ secrets.JSONBIN_BIN_ID }}
+        run: |
+          node .github/scripts/fetch-bilibili.js
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: update bilibili videos data"
+          git push
