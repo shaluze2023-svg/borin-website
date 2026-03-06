@@ -17,7 +17,7 @@
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: var(--header-bg); backdrop-filter: blur(10px); box-shadow: 0 4px 20px var(--shadow); position: sticky; top: 0; z-index: 100; }
         .menu-btn, .search-btn { background: none; border: none; color: var(--text-primary); font-size: 1.8rem; cursor: pointer; padding: 10px; border-radius: 50%; }
-        .title { font-size: 2.2rem; font-weight: 700; letter-spacing: 2px; background: linear-gradient(to right, #ff7e5f, #feb47b, #86a8e7, #91eae4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .title { font-size: 2.2rem; font-weight: 700; letter-spacing: 3px; background: linear-gradient(90deg, #ff7e5f, #feb47b, #86a8e7, #91eae4, #ff7e5f); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: titleFlow 4s linear infinite; }
         .sidebar { position: fixed; top: 0; left: -350px; width: 350px; height: 100vh; background: var(--sidebar-bg); backdrop-filter: blur(10px); box-shadow: 5px 0 30px var(--shadow); z-index: 1000; transition: left 0.4s ease; display: flex; flex-direction: column; overflow-y: auto; padding: 20px; }
         .sidebar.open { left: 0; }
         .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); }
@@ -90,6 +90,31 @@
         .time-icon { margin-right: 15px; color: #ff7e5f; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         @media (max-width: 768px) { .page-title { font-size: 2rem; } .post-actions { display: flex; } }
+        @keyframes titleFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+
+    
+        @media (max-width: 768px) {
+            .title { font-size: 1.6rem; }
+            header { padding: 15px 20px; }
+            .menu-btn, .search-btn { font-size: 1.5rem; }
+            .sidebar { width: 280px; left: -280px; }
+            main { padding: 20px 15px; }
+            .post-card { padding: 15px; }
+            .post-title { font-size: 1.2rem; }
+            .tags-section { padding: 15px; }
+            .tag-item { padding: 6px 12px; font-size: 0.85rem; }
+            .fab { width: 50px; height: 50px; font-size: 1.3rem; bottom: 20px; right: 20px; }
+        }
+        @media (max-width: 480px) {
+            .title { font-size: 1.3rem; }
+            header { padding: 12px 15px; }
+            .sidebar { width: 100%; left: -100%; }
+            .post-card { padding: 12px; }
+            .post-title { font-size: 1.1rem; }
+            .post-meta { flex-direction: column; gap: 8px; }
+            .tag-item { padding: 5px 10px; font-size: 0.8rem; }
+            .fab { width: 45px; height: 45px; font-size: 1.2rem; bottom: 15px; right: 15px; }
+        }
     </style>
 <script src="protect.js"></script></head>
 <body>
