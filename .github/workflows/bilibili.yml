@@ -2,9 +2,11 @@ name: Fetch Bilibili Hot Videos
 
 on:
   schedule:
-    # 每6小时执行一次
     - cron: '0 */6 * * *'
-  workflow_dispatch: # 手动触发
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   fetch:
@@ -12,6 +14,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
