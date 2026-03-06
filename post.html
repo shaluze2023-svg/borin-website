@@ -1,27 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <script>
-    (function() {
-        var theme = "dark";
-        var c = document.cookie.split("; ");
-        for (var i = 0; i < c.length; i++) {
-            if (c[i].indexOf("theme=") === 0) {
-                theme = decodeURIComponent(c[i].substring(6));
-                break;
-            }
-        }
-        if (!document.cookie.includes("theme=")) {
-            var now = new Date();
-            var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-            var bj = new Date(utc + 28800000);
-            var hour = bj.getHours();
-            theme = (hour >= 6 && hour < 18) ? "light" : "dark";
-        }
-        document.documentElement.setAttribute("data-theme", theme);
-    })();
-    </script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>帖子 - ぼりんの网站</title>
@@ -31,33 +10,15 @@
             --bg-primary: #fff5f0;
             --bg-card: rgba(255, 255, 255, 0.85); --text-primary: #3d2c29; --text-secondary: #8b7068; --accent: #fb7299; --border: rgba(251, 114, 153, 0.15); --shadow: rgba(251, 114, 153, 0.08); --gradient-1: #fff0eb; --gradient-2: #ffe4dc; --gradient-3: #ffd6cc; --gradient-4: #ffeee8; --header-bg: rgba(255, 255, 255, 0.92); --sidebar-bg: rgba(255, 248, 245, 0.97); --footer-bg: rgba(255, 248, 245, 0.92); --time-bg: rgba(255, 230, 220, 0.7); --input-bg: rgba(255, 235, 225, 0.6);
         }
-                [data-theme="dark"] {
-            --bg-primary: #1a1a2e;
-            --bg-secondary: #16213e;
-            --bg-card: rgba(20, 25, 50, 0.6);
-            --text-primary: #f0f0f0;
-            --text-secondary: #a0a0c0;
-            --accent: #fb7299;
-            --accent-hover: #e55a80;
-            --border: rgba(100, 120, 200, 0.3);
-            --shadow: rgba(0, 0, 0, 0.3);
-            --gradient-1: #1a1a2e;
-            --gradient-2: #16213e;
-            --gradient-3: #0f3460;
-            --gradient-4: #1a1a2e;
-            --header-bg: rgba(10, 10, 20, 0.7);
-            --sidebar-bg: rgba(15, 20, 40, 0.95);
-            --card-bg: rgba(20, 25, 50, 0.6);
-            --footer-bg: rgba(10, 10, 20, 0.85);
-            --time-bg: rgba(30, 40, 70, 0.5);
-            --input-bg: rgba(30, 40, 70, 0.5);
+        [data-theme="dark"] {
+            --bg-card: rgba(20, 25, 50, 0.6); --text-primary: #f0f0f0; --text-secondary: #a0a0c0; --gradient-1: #1a1a2e; --gradient-2: #16213e; --gradient-3: #0f3460; --gradient-4: #1a1a2e; --header-bg: rgba(10, 10, 20, 0.7); --sidebar-bg: rgba(15, 20, 40, 0.95); --footer-bg: rgba(10, 10, 20, 0.85); --time-bg: rgba(30, 40, 70, 0.5); --input-bg: rgba(30, 40, 70, 0.5);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { min-height: 100vh; background: linear-gradient(-45deg, var(--gradient-1), var(--gradient-2), var(--gradient-3), var(--gradient-4)); background-size: 400% 400%; animation: gradientBG 15s ease infinite; color: var(--text-primary); overflow-x: hidden; display: flex; flex-direction: column; transition: all 0.3s ease; }
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: var(--header-bg); backdrop-filter: blur(10px); box-shadow: 0 4px 20px var(--shadow); position: sticky; top: 0; z-index: 100; }
         .menu-btn, .search-btn { background: none; border: none; color: var(--text-primary); font-size: 1.8rem; cursor: pointer; padding: 10px; border-radius: 50%; }
-        .title { font-size: 2.2rem; font-weight: 700; letter-spacing: 3px; background: linear-gradient(90deg, #ff7e5f, #feb47b, #86a8e7, #91eae4, #ff7e5f); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: titleFlow 4s linear infinite; text-shadow: 0 0 30px rgba(255, 126, 95, 0.3); position: relative; }
+        .title { font-size: 2.2rem; font-weight: 700; letter-spacing: 3px; background: linear-gradient(90deg, #ff7e5f, #feb47b, #86a8e7, #91eae4, #ff7e5f); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: titleFlow 4s linear infinite; }
         .sidebar { position: fixed; top: 0; left: -350px; width: 350px; height: 100vh; background: var(--sidebar-bg); backdrop-filter: blur(10px); box-shadow: 5px 0 30px var(--shadow); z-index: 1000; transition: left 0.4s ease; display: flex; flex-direction: column; overflow-y: auto; padding: 20px; }
         .sidebar.open { left: 0; }
         .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); }
@@ -132,35 +93,6 @@
         @media (max-width: 768px) { .page-title { font-size: 2rem; } .post-actions { display: flex; } }
         @keyframes titleFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 
-    
-        @media (max-width: 768px) {
-            .title { font-size: 1.6rem; letter-spacing: 2px; }
-            header { padding: 15px 20px; }
-            .menu-btn, .search-btn { font-size: 1.5rem; }
-            .sidebar { width: 280px; left: -280px; }
-            main { padding: 20px 15px; }
-            .post-container { padding: 0; }
-            .page-title { font-size: 1.8rem; }
-            .post-card { padding: 15px; }
-            .post-title { font-size: 1.2rem; }
-            .post-excerpt { font-size: 0.9rem; }
-            .tags-section { padding: 15px; }
-            .tag-item { padding: 6px 12px; font-size: 0.85rem; }
-            .fab { width: 50px; height: 50px; font-size: 1.3rem; bottom: 20px; right: 20px; }
-            .modal-content { margin: 10px; padding: 20px; max-height: 90vh; }
-            .modal-title { font-size: 1.3rem; }
-        }
-        @media (max-width: 480px) {
-            .title { font-size: 1.3rem; }
-            header { padding: 12px 15px; }
-            .sidebar { width: 100%; left: -100%; }
-            .post-card { padding: 12px; border-radius: 12px; }
-            .post-title { font-size: 1.1rem; }
-            .post-meta { flex-direction: column; gap: 8px; }
-            .tag-item { padding: 5px 10px; font-size: 0.8rem; }
-            .fab { width: 45px; height: 45px; font-size: 1.2rem; bottom: 15px; right: 15px; }
-            footer { padding: 15px; font-size: 0.85rem; }
-        }
     </style>
 <script src="protect.js"></script></head>
 <body>
