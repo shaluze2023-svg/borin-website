@@ -1,26 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-        <script>
-        (function() {
-            var theme = "dark";
-            var c = document.cookie.split("; ");
-            for (var i = 0; i < c.length; i++) {
-                if (c[i].indexOf("theme=") === 0) {
-                    theme = decodeURIComponent(c[i].substring(6));
-                    break;
-                }
-            }
-            if (c.every(function(x) { return x.indexOf("theme=") !== 0; })) {
-                var now = new Date();
-                var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-                var bj = new Date(utc + 28800000);
-                var hour = bj.getHours();
-                theme = (hour >= 6 && hour < 18) ? "light" : "dark";
-            }
-            document.documentElement.setAttribute("data-theme", theme);
-        })();
-        </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>设置 - ぼりんの网站</title>
@@ -71,7 +51,7 @@
         header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: var(--header-bg); backdrop-filter: blur(10px); box-shadow: 0 4px 20px var(--shadow); position: sticky; top: 0; z-index: 100; }
         .menu-btn, .search-btn { background: none; border: none; color: var(--text-primary); font-size: 1.8rem; cursor: pointer; padding: 10px; border-radius: 50%; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; z-index: 101; }
         .menu-btn:hover, .search-btn:hover { background: rgba(128, 128, 128, 0.2); transform: scale(1.1); }
-        .title { font-size: 2.2rem; font-weight: 700; letter-spacing: 3px; background: linear-gradient(90deg, #ff7e5f, #feb47b, #86a8e7, #91eae4, #ff7e5f); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: titleFlow 4s linear infinite; text-shadow: 0 0 30px rgba(255, 126, 95, 0.3); position: relative; }
+        .title { font-size: 2.2rem; font-weight: 700; letter-spacing: 2px; background: linear-gradient(to right, #ff7e5f, #feb47b, #86a8e7, #91eae4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .sidebar { position: fixed; top: 0; left: -350px; width: 350px; height: 100vh; background: var(--sidebar-bg); backdrop-filter: blur(10px); box-shadow: 5px 0 30px var(--shadow); z-index: 1000; transition: left 0.4s ease; display: flex; flex-direction: column; overflow-y: auto; padding: 20px; }
         .sidebar.open { left: 0; }
         .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); }
@@ -126,8 +106,6 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         @media (max-width: 768px) { .settings-title { font-size: 2rem; } .settings-container { padding: 30px; } .theme-options { flex-direction: column; } }
         @media (max-width: 480px) { header { padding: 15px 20px; } .title { font-size: 1.5rem; } .menu-btn, .search-btn { font-size: 1.5rem; } .settings-title { font-size: 1.8rem; } .settings-container { padding: 20px; } }
-        @keyframes titleFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
-
     </style>
 <script src="protect.js"></script></head>
 <body>
@@ -146,7 +124,7 @@
     </div>
     <div class="overlay" id="overlay"></div>
     <div class="toast" id="toast">设置已保存</div>
-        <h1 class="title">系统设置</h1>
+        <h1 class="title"><span class="title-icon">⚙️</span>系统设置</h1>
     </header>
     <main>
         <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回首页</a>

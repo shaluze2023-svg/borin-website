@@ -1,53 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-        <script>
-        (function() {
-            var theme = "dark";
-            var c = document.cookie.split("; ");
-            for (var i = 0; i < c.length; i++) {
-                if (c[i].indexOf("theme=") === 0) {
-                    theme = decodeURIComponent(c[i].substring(6));
-                    break;
-                }
-            }
-            if (c.every(function(x) { return x.indexOf("theme=") !== 0; })) {
-                var now = new Date();
-                var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-                var bj = new Date(utc + 28800000);
-                var hour = bj.getHours();
-                theme = (hour >= 6 && hour < 18) ? "light" : "dark";
-            }
-            document.documentElement.setAttribute("data-theme", theme);
-        })();
-        </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>搜索 - ぼりんの网站</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --bg-card: rgba(255, 255, 255, 0.85); --text-primary: #3d2c29; --text-secondary: #8b7068; --accent: #fb7299; --border: rgba(251, 114, 153, 0.15); --shadow: rgba(251, 114, 153, 0.08); --gradient-1: #fff0eb; --gradient-2: #ffe4dc; --gradient-3: #ffd6cc; --gradient-4: #ffeee8; --header-bg: rgba(255, 255, 255, 0.92); --footer-bg: rgba(255, 248, 245, 0.92); --time-bg: rgba(255, 230, 220, 0.7); --input-bg: rgba(230, 230, 240, 0.6); }
-                [data-theme="dark"] {
-            --bg-primary: #1a1a2e;
-            --bg-secondary: #16213e;
-            --bg-card: rgba(20, 25, 50, 0.6);
-            --text-primary: #f0f0f0;
-            --text-secondary: #a0a0c0;
-            --accent: #fb7299;
-            --accent-hover: #e55a80;
-            --border: rgba(100, 120, 200, 0.3);
-            --shadow: rgba(0, 0, 0, 0.3);
-            --gradient-1: #1a1a2e;
-            --gradient-2: #16213e;
-            --gradient-3: #0f3460;
-            --gradient-4: #1a1a2e;
-            --header-bg: rgba(10, 10, 20, 0.7);
-            --sidebar-bg: rgba(15, 20, 40, 0.95);
-            --card-bg: rgba(20, 25, 50, 0.6);
-            --footer-bg: rgba(10, 10, 20, 0.85);
-            --time-bg: rgba(30, 40, 70, 0.5);
-            --input-bg: rgba(30, 40, 70, 0.5);
-        }
+        [data-theme="dark"] { --bg-card: rgba(20, 25, 50, 0.6); --text-primary: #f0f0f0; --text-secondary: #a0a0c0; --gradient-1: #1a1a2e; --gradient-2: #16213e; --gradient-3: #0f3460; --gradient-4: #1a1a2e; --header-bg: rgba(10, 10, 20, 0.7); --footer-bg: rgba(10, 10, 20, 0.85); --time-bg: rgba(30, 40, 70, 0.5); --input-bg: rgba(30, 40, 70, 0.5); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { min-height: 100vh; background: linear-gradient(-45deg, var(--gradient-1), var(--gradient-2), var(--gradient-3), var(--gradient-4)); background-size: 400% 400%; animation: gradientBG 15s ease infinite; color: var(--text-primary); display: flex; flex-direction: column; transition: all 0.3s ease; }
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
