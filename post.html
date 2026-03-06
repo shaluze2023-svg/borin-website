@@ -1,26 +1,27 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-        <script>
-        (function() {
-            var theme = "dark";
-            var c = document.cookie.split("; ");
-            for (var i = 0; i < c.length; i++) {
-                if (c[i].indexOf("theme=") === 0) {
-                    theme = decodeURIComponent(c[i].substring(6));
-                    break;
-                }
+    <script>
+    (function() {
+        var theme = "dark";
+        var c = document.cookie.split("; ");
+        for (var i = 0; i < c.length; i++) {
+            if (c[i].indexOf("theme=") === 0) {
+                theme = decodeURIComponent(c[i].substring(6));
+                break;
             }
-            if (c.every(function(x) { return x.indexOf("theme=") !== 0; })) {
-                var now = new Date();
-                var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-                var bj = new Date(utc + 28800000);
-                var hour = bj.getHours();
-                theme = (hour >= 6 && hour < 18) ? "light" : "dark";
-            }
-            document.documentElement.setAttribute("data-theme", theme);
-        })();
-        </script>
+        }
+        if (!document.cookie.includes("theme=")) {
+            var now = new Date();
+            var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            var bj = new Date(utc + 28800000);
+            var hour = bj.getHours();
+            theme = (hour >= 6 && hour < 18) ? "light" : "dark";
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+    })();
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>帖子 - ぼりんの网站</title>
@@ -131,6 +132,35 @@
         @media (max-width: 768px) { .page-title { font-size: 2rem; } .post-actions { display: flex; } }
         @keyframes titleFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 
+    
+        @media (max-width: 768px) {
+            .title { font-size: 1.6rem; letter-spacing: 2px; }
+            header { padding: 15px 20px; }
+            .menu-btn, .search-btn { font-size: 1.5rem; }
+            .sidebar { width: 280px; left: -280px; }
+            main { padding: 20px 15px; }
+            .post-container { padding: 0; }
+            .page-title { font-size: 1.8rem; }
+            .post-card { padding: 15px; }
+            .post-title { font-size: 1.2rem; }
+            .post-excerpt { font-size: 0.9rem; }
+            .tags-section { padding: 15px; }
+            .tag-item { padding: 6px 12px; font-size: 0.85rem; }
+            .fab { width: 50px; height: 50px; font-size: 1.3rem; bottom: 20px; right: 20px; }
+            .modal-content { margin: 10px; padding: 20px; max-height: 90vh; }
+            .modal-title { font-size: 1.3rem; }
+        }
+        @media (max-width: 480px) {
+            .title { font-size: 1.3rem; }
+            header { padding: 12px 15px; }
+            .sidebar { width: 100%; left: -100%; }
+            .post-card { padding: 12px; border-radius: 12px; }
+            .post-title { font-size: 1.1rem; }
+            .post-meta { flex-direction: column; gap: 8px; }
+            .tag-item { padding: 5px 10px; font-size: 0.8rem; }
+            .fab { width: 45px; height: 45px; font-size: 1.2rem; bottom: 15px; right: 15px; }
+            footer { padding: 15px; font-size: 0.85rem; }
+        }
     </style>
 <script src="protect.js"></script></head>
 <body>
@@ -188,7 +218,7 @@
     
     <header>
         <button class="menu-btn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
-        <h1 class="title"><span class="title-icon">📝</span>帖子动态<span class="title-badge">NEW</span></h1>
+        <h1 class="title">帖子动态</h1>
         <button class="search-btn" onclick="location.href='search.html'"><i class="fas fa-search"></i></button>
     </header>
     
