@@ -51,6 +51,8 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         @media (max-width: 768px) { .about-title { font-size: 2rem; } .about-container { padding: 30px; } }
         @media (max-width: 480px) { header { padding: 15px 20px; } .title { font-size: 1.5rem; } .menu-btn, .search-btn { font-size: 1.5rem; } .about-title { font-size: 1.8rem; } .about-container { padding: 20px; } .creator-icon { width: 100px; height: 100px; font-size: 2.5rem; } }
+        @keyframes titleFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+
     </style>
 <script src="protect.js"></script><script src="protect.js"></script><script src="protect.js"></script></head>
 <body>
@@ -70,7 +72,7 @@
     <div class="overlay" id="overlay"></div>
     <header>
         <button class="menu-btn" id="menuToggle"><i class="fas fa-bars"></i></button>
-        <h1 class="title"><span class="title-icon">✨</span>关于我们</h1>
+        <h1 class="title">关于我们</h1>
     </header>
     <main>
         <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回首页</a>
