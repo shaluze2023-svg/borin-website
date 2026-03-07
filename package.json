@@ -1,8 +1,0 @@
-{
-  "name": "borin-website",
-  "version": "1.0.0",
-  "description": "ぼりん个人网站",
-  "dependencies": {
-    "node-fetch": "^2.7.0"
-  }
-}
