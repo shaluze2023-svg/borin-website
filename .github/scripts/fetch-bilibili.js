@@ -3,47 +3,40 @@ const https = require('https');
 const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY;
 const JSONBIN_BIN_ID = process.env.JSONBIN_BIN_ID;
 
-// 浏览器请求头
 const headers = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-  'Referer': 'https://www.bilibili.com/',
-  'Origin': 'https://www.bilibili.com',
-  'Accept': 'application/json, text/plain, */*',
-  'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8'
+  'Referer': 'https://www.bilibili.com/'
 };
 
-// 获取B站热门视频
+// 使用推荐接口（更稳定）
 function fetchBilibili() {
   return new Promise((resolve, reject) => {
-    const url = 'https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all';
+    const url = 'https://api.bilibili.com/x/web-interface/wbi/index/top/rcmd?ps=12';
     
-    const req = https.request(url, { headers, method: 'GET' }, (res) => {
+    https.get(url, { headers }, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
         try {
           const json = JSON.parse(data);
-          if (json.code === 0 && json.data && json.data.list) {
-            const videos = json.data.list.slice(0, 12).map(item => ({
+          if (json.code === 0 && json.data && json.data.item) {
+            const videos = json.data.item.slice(0, 12).map(item => ({
               bvid: item.bvid,
               title: item.title,
-              cover: item.pic && item.pic.startsWith('//') ? 'https:' + item.pic : item.pic,
+              cover: item.pic && item.pic.startsWith('//') ? 'https:' + item.pic : item.pic || '',
               duration: formatDuration(item.duration),
               up: item.owner ? item.owner.name : '未知',
               views: formatViewCount(item.stat ? item.stat.view : 0)
             }));
             resolve(videos);
           } else {
-            reject(new Error('API返回错误: ' + json.message));
+            reject(new Error('API error: ' + (json.message || json.code)));
           }
         } catch (e) {
           reject(e);
         }
       });
-    });
-    
-    req.on('error', reject);
-    req.end();
+    }).on('error', reject);
   });
 }
 
@@ -61,10 +54,8 @@ function formatViewCount(count) {
   return String(count);
 }
 
-// 更新JSONBin
 async function updateJSONBin(videos) {
   return new Promise((resolve, reject) => {
-    // 先获取现有数据
     const getUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`;
     
     https.get(getUrl, {
@@ -77,13 +68,11 @@ async function updateJSONBin(videos) {
           const existing = JSON.parse(data);
           const record = existing.record || {};
           
-          // 更新bilibili字段
           record.bilibili = {
             updated: new Date().toISOString(),
             videos: videos
           };
           
-          // 写回JSONBin
           const postData = JSON.stringify(record);
           const putUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
           
@@ -98,7 +87,7 @@ async function updateJSONBin(videos) {
             let result = '';
             res2.on('data', chunk => result += chunk);
             res2.on('end', () => {
-              console.log('JSONBin updated successfully');
+              console.log('JSONBin updated');
               resolve();
             });
           });
@@ -106,7 +95,6 @@ async function updateJSONBin(videos) {
           req.on('error', reject);
           req.write(postData);
           req.end();
-          
         } catch (e) {
           reject(e);
         }
@@ -115,11 +103,13 @@ async function updateJSONBin(videos) {
   });
 }
 
-// 主函数
 async function main() {
-  console.log('Fetching Bilibili hot videos...');
+  console.log('Fetching Bilibili videos...');
   const videos = await fetchBilibili();
   console.log('Got', videos.length, 'videos');
+  for (const v of videos.slice(0, 5)) {
+    console.log('  -', v.bvid, v.title.slice(0, 30));
+  }
   
   console.log('Updating JSONBin...');
   await updateJSONBin(videos);
