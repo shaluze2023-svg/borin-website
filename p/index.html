@@ -130,7 +130,15 @@
         async function loadPost() {
             try {
                 const res = await fetch(API_URL + '/latest', { headers: { 'Content-Type': 'application/json' } });
-                if (res.ok) { allPosts = (await res.json()).record.posts || []; }
+                if (res.ok) {
+                    const localPosts = JSON.parse(localStorage.getItem('borin_posts') || '[]');
+                    const remotePosts = (await res.json()).record.posts || [];
+                    // 合并数据，本地优先
+                    const localIds = new Set(localPosts.map(p => p.id));
+                    const newFromRemote = remotePosts.filter(p => !localIds.has(p.id));
+                    allPosts = [...localPosts, ...newFromRemote];
+                    allPosts.sort((a, b) => b.id - a.id);
+                }
                 else { allPosts = JSON.parse(localStorage.getItem('borin_posts') || '[]'); }
             } catch(e) { allPosts = JSON.parse(localStorage.getItem('borin_posts') || '[]'); }
             

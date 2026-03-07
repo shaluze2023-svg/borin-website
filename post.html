@@ -220,11 +220,22 @@
         // ===== 数据操作 =====
         async function loadPosts() {
             showLoading(true, '加载帖子...');
+            const localPosts = JSON.parse(localStorage.getItem('borin_posts') || '[]');
             try {
                 const res = await fetch(API_URL + '/latest', { headers: getHeaders() });
-                if (res.ok) { const d = await res.json(); posts = d.record.posts || []; }
-                else { posts = JSON.parse(localStorage.getItem('borin_posts') || '[]'); }
-            } catch(e) { posts = JSON.parse(localStorage.getItem('borin_posts') || '[]'); }
+                if (res.ok) {
+                    const d = await res.json();
+                    const remotePosts = d.record.posts || [];
+                    // 合并数据：以本地为准，远程数据补充缺失的
+                    const localIds = new Set(localPosts.map(p => p.id));
+                    const newFromRemote = remotePosts.filter(p => !localIds.has(p.id));
+                    posts = [...localPosts, ...newFromRemote];
+                    // 按ID排序
+                    posts.sort((a, b) => b.id - a.id);
+                } else { posts = localPosts; }
+            } catch(e) { posts = localPosts; }
+            // 确保数据同步到云端
+            if (posts.length > 0) savePosts();
             showLoading(false);
             renderTags();
             renderPosts();
