@@ -222,10 +222,8 @@
         // 获取B站热门视频
         async function fetchBilibiliHot() {
             try {
-                const binId = '69a8140243b1c97be9b266ab';
-                const response = await fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest', {
-                    headers: { 'X-Master-Key': '$2a$10$H2JFMGgdaWvqVWl0L1eFy.Vo/pkShpTWl3F.t2OEse8bkcC97anhy' }
-                });
+                const binId = '69abb4bbd0ea881f40f802db';
+                const response = await fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest');
                 const data = await response.json();
                 if (data.record && data.record.bilibili && data.record.bilibili.videos) {
                     return data.record.bilibili.videos;

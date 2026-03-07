@@ -108,7 +108,7 @@
     </footer>
     
     <script>
-        const _c = {b:"69a8140243b1c97be9b266ab",k:"H2JFMGgdaWvqVWl0L1eFy.Vo/pkShpTWl3F.t2OEse8bkcC97anhy"};
+        const _c = {b:"69abb4bbd0ea881f40f802db",k:""};
         const API_URL = "https://api.jsonbin.io/v3/b/" + _c.b;
         
         // 从URL获取帖子ID: /p/?id=123 或 /p/index.html?id=123
@@ -129,7 +129,7 @@
         
         async function loadPost() {
             try {
-                const res = await fetch(API_URL + '/latest', { headers: { 'Content-Type': 'application/json', 'X-Master-Key': '$2a$10$' + _c.k } });
+                const res = await fetch(API_URL + '/latest', { headers: { 'Content-Type': 'application/json' } });
                 if (res.ok) { allPosts = (await res.json()).record.posts || []; }
                 else { allPosts = JSON.parse(localStorage.getItem('borin_posts') || '[]'); }
             } catch(e) { allPosts = JSON.parse(localStorage.getItem('borin_posts') || '[]'); }
@@ -170,7 +170,7 @@
             if (idx !== -1) {
                 allPosts[idx] = currentPost;
                 localStorage.setItem('borin_posts', JSON.stringify(allPosts));
-                try { await fetch(API_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': '$2a$10$' + _c.k }, body: JSON.stringify({posts: allPosts}) }); } catch(e) {}
+                try { await fetch(API_URL, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({posts: allPosts}) }); } catch(e) {}
             }
             document.getElementById('commentAuthor').value = '';
             document.getElementById('commentContent').value = '';

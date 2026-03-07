@@ -1,14 +1,13 @@
 const https = require('https');
 
 const JSONBIN_API_KEY = process.env.JSONBIN_API_KEY;
-const JSONBIN_BIN_ID = process.env.JSONBIN_BIN_ID;
+const JSONBIN_BIN_ID = process.env.JSONBIN_BIN_ID || '69abb4bbd0ea881f40f802db';
 
 const headers = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
   'Referer': 'https://www.bilibili.com/'
 };
 
-// 使用推荐接口（更稳定）
 function fetchBilibili() {
   return new Promise((resolve, reject) => {
     const url = 'https://api.bilibili.com/x/web-interface/wbi/index/top/rcmd?ps=12';
@@ -107,9 +106,6 @@ async function main() {
   console.log('Fetching Bilibili videos...');
   const videos = await fetchBilibili();
   console.log('Got', videos.length, 'videos');
-  for (const v of videos.slice(0, 5)) {
-    console.log('  -', v.bvid, v.title.slice(0, 30));
-  }
   
   console.log('Updating JSONBin...');
   await updateJSONBin(videos);
