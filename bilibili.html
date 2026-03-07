@@ -7,24 +7,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-primary: #f0f0f5;
-            --bg-secondary: #ffffff;
-            --bg-card: #ffffff;
-            --text-primary: #1a1a2e;
-            --text-secondary: #666680;
+            --bg-primary: #fff5f0;
+            --bg-secondary: #fff8f5;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --text-primary: #3d2c29;
+            --text-secondary: #8b7068;
             --accent: #fb7299;
             --accent-hover: #e55a80;
-            --border: rgba(100, 120, 200, 0.2);
-            --shadow: rgba(0, 0, 0, 0.1);
-            --gradient-1: #e8e8f0;
-            --gradient-2: #d0d0e0;
-            --gradient-3: #c0c0d8;
-            --gradient-4: #e8e8f0;
-            --header-bg: rgba(255, 255, 255, 0.9);
-            --sidebar-bg: rgba(245, 245, 250, 0.95);
-            --card-bg: rgba(255, 255, 255, 0.8);
-            --footer-bg: rgba(245, 245, 250, 0.9);
-            --time-bg: rgba(230, 230, 240, 0.8);
+            --border: rgba(251, 114, 153, 0.15);
+            --shadow: rgba(251, 114, 153, 0.08);
+            --gradient-1: #fff0eb;
+            --gradient-2: #ffe4dc;
+            --gradient-3: #ffd6cc;
+            --gradient-4: #ffeee8;
+            --header-bg: rgba(255, 255, 255, 0.92);
+            --sidebar-bg: rgba(255, 248, 245, 0.97);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --footer-bg: rgba(255, 248, 245, 0.92);
+            --time-bg: rgba(255, 230, 220, 0.7);
         }
         [data-theme="dark"] {
             --bg-primary: #1a1a2e;
@@ -95,11 +95,7 @@
         .notification.show { opacity: 1; }
         .notification i { margin-right: 10px; font-size: 1.5rem; }
         footer { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 25px; background: var(--footer-bg); color: var(--text-secondary); border-top: 1px solid var(--border); }
-        .time-display { display: flex; justify-content: center; align-items: center; margin-top: 10px; font-size: 1.6rem; color: var(--text-primary); background: var(--time-bg); padding: 15px 30px; border-radius: 15px; font-weight: 600; letter-spacing: 1px; box-shadow: 0 5px 15px var(--shadow); }
-        .time-label { color: #86a8e7; margin-right: 10px; }
-        .time-value { color: #feb47b; min-width: 170px; text-align: center; }
         .copyright { margin-top: 20px; font-size: 1rem; color: var(--text-secondary); }
-        .time-icon { margin-right: 15px; font-size: 1.8rem; color: #ff7e5f; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .refresh-btn { background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 25px; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; margin-top: 20px; }
         .refresh-btn:hover { background: var(--accent-hover); transform: translateY(-2px); }
@@ -134,7 +130,6 @@
         </div>
     </main>
     <footer>
-        <div class="time-display"><i class="fas fa-clock time-icon"></i><span class="time-label">北京时间：</span><span class="time-value" id="beijing-time">00:00:00</span></div>
         <div class="copyright">© 2026 ぼりんの网站 | B站热门视频功能</div>
     </footer>
     <script>
@@ -293,7 +288,6 @@
             const now = new Date();
             const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
             const beijing = new Date(utc + (3600000 * 8));
-            document.getElementById('beijing-time').textContent = beijing.getHours().toString().padStart(2, '0') + ':' + beijing.getMinutes().toString().padStart(2, '0') + ':' + beijing.getSeconds().toString().padStart(2, '0');
         }
         
         updateTimeDisplay();
