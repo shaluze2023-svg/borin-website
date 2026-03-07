@@ -222,19 +222,15 @@
         // 获取B站热门视频
         async function fetchBilibiliHot() {
             try {
-                const response = await fetch('https://api.bilibili.com/x/web-interface/ranking/v2?rid=0&type=all');
+                const binId = '69a8140243b1c97be9b266ab';
+                const response = await fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest', {
+                    headers: { 'X-Master-Key': '$2a$10$H2JFMGgdaWvqVWl0L1eFy.Vo/pkShpTWl3F.t2OEse8bkcC97anhy' }
+                });
                 const data = await response.json();
-                if (data.code === 0 && data.data && data.data.list) {
-                    return data.data.list.slice(0, 10).map(item => ({
-                        bvid: item.bvid,
-                        title: item.title,
-                        cover: item.pic.startsWith('//') ? 'https:' + item.pic : item.pic,
-                        duration: formatDuration(item.duration),
-                        up: item.owner ? item.owner.name : '未知UP主',
-                        views: formatViewCount(item.stat ? item.stat.view : 0)
-                    }));
+                if (data.record && data.record.bilibili && data.record.bilibili.videos) {
+                    return data.record.bilibili.videos;
                 }
-                throw new Error('API数据异常');
+                return getSampleVideos();
             } catch (error) {
                 console.error('获取B站热门失败:', error);
                 return getSampleVideos();
@@ -282,17 +278,7 @@
                 if (!document.hidden) window.location.href = 'https://www.bilibili.com/video/' + bvid;
                 else notification.classList.remove('show');
             }, 1500);
-        }
-        
-        function updateTimeDisplay() {
-            const now = new Date();
-            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const beijing = new Date(utc + (3600000 * 8));
-        }
-        
-        updateTimeDisplay();
-        setInterval(updateTimeDisplay, 1000);
-        document.getElementById('searchToggle').addEventListener('click', function() { window.location.href = 'search.html'; });
+        });
         loadVideos();
     </script>
 </body>
