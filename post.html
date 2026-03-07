@@ -92,29 +92,6 @@
         @media (max-width: 768px) { .page-title { font-size: 2rem; } .post-actions { display: flex; } }
         @keyframes titleFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 
-    
-        @media (max-width: 768px) {
-            .title { font-size: 1.6rem; }
-            header { padding: 15px 20px; }
-            .menu-btn, .search-btn { font-size: 1.5rem; }
-            .sidebar { width: 280px; left: -280px; }
-            main { padding: 20px 15px; }
-            .post-card { padding: 15px; }
-            .post-title { font-size: 1.2rem; }
-            .tags-section { padding: 15px; }
-            .tag-item { padding: 6px 12px; font-size: 0.85rem; }
-            .fab { width: 50px; height: 50px; font-size: 1.3rem; bottom: 20px; right: 20px; }
-        }
-        @media (max-width: 480px) {
-            .title { font-size: 1.3rem; }
-            header { padding: 12px 15px; }
-            .sidebar { width: 100%; left: -100%; }
-            .post-card { padding: 12px; }
-            .post-title { font-size: 1.1rem; }
-            .post-meta { flex-direction: column; gap: 8px; }
-            .tag-item { padding: 5px 10px; font-size: 0.8rem; }
-            .fab { width: 45px; height: 45px; font-size: 1.2rem; bottom: 15px; right: 15px; }
-        }
     </style>
 <script src="protect.js"></script></head>
 <body>
@@ -191,6 +168,7 @@
     </main>
     
     <footer>
+        <div class="time-display"><i class="fas fa-clock time-icon"></i><span class="time-label">北京时间：</span><span class="time-value" id="beijing-time">00:00:00</span></div>
         <div class="copyright">© 2026 ぼりんの网站 | 帖子动态</div>
     </footer>
     
@@ -206,6 +184,7 @@
         let posts = [], currentFilter = null, uploadedImages = [], isAuthenticated = false, editingId = null;
         
         // ===== 工具函数 =====
+        function getBeijingHour() { const n = new Date(), u = n.getTime() + n.getTimezoneOffset() * 60000; return new Date(u + 28800000).getHours(); }
         function initTheme() { const s = getCookie('theme'); applyTheme(s || (getBeijingHour() >= 6 && getBeijingHour() < 18 ? 'light' : 'dark')); }
         function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); }
         function getCookie(n) { const c = document.cookie.split('; ').find(r => r.startsWith(n + '=')); return c ? decodeURIComponent(c.split('=')[1]) : null; }
@@ -383,6 +362,11 @@
             showToast(editingId ? '修改成功！' : '发布成功！');
         }
         
+        function updateTime() {
+            const n = new Date(), u = n.getTime() + n.getTimezoneOffset() * 60000, bj = new Date(u + 28800000);
+            document.getElementById('beijing-time').textContent = String(bj.getHours()).padStart(2,'0')+':'+String(bj.getMinutes()).padStart(2,'0')+':'+String(bj.getSeconds()).padStart(2,'0');
+        }
+        updateTime(); setInterval(updateTime, 1000);
         
         loadPosts();
     </script>
