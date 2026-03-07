@@ -206,7 +206,6 @@
         let posts = [], currentFilter = null, uploadedImages = [], isAuthenticated = false, editingId = null;
         
         // ===== 工具函数 =====
-        function getBeijingHour() { const n = new Date(), u = n.getTime() + n.getTimezoneOffset() * 60000; return new Date(u + 28800000).getHours(); }
         function initTheme() { const s = getCookie('theme'); applyTheme(s || (getBeijingHour() >= 6 && getBeijingHour() < 18 ? 'light' : 'dark')); }
         function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); }
         function getCookie(n) { const c = document.cookie.split('; ').find(r => r.startsWith(n + '=')); return c ? decodeURIComponent(c.split('=')[1]) : null; }
@@ -384,8 +383,6 @@
             showToast(editingId ? '修改成功！' : '发布成功！');
         }
         
-            const n = new Date(), u = n.getTime() + n.getTimezoneOffset() * 60000, bj = new Date(u + 28800000);
-        }
         
         loadPosts();
     </script>
