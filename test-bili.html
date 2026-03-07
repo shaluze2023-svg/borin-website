@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bilibili测试</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f5f5f5; }
+        .video-card { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Bilibili API测试</h1>
+    <div id="status">加载中...</div>
+    <div id="videos"></div>
+    
+    <script>
+        console.log('=== 开始测试 ===');
+        
+        async function load() {
+            const statusDiv = document.getElementById('status');
+            const videosDiv = document.getElementById('videos');
+            
+            try {
+                statusDiv.textContent = '请求API...';
+                console.log('请求API...');
+                
+                const response = await fetch('https://api.jsonbin.io/v3/b/69abb4bbd0ea881f40f802db/latest');
+                console.log('响应状态:', response.status);
+                
+                statusDiv.textContent = '响应状态: ' + response.status;
+                
+                const data = await response.json();
+                console.log('数据:', data);
+                
+                const videos = data.record?.bilibili?.videos || [];
+                console.log('视频数量:', videos.length);
+                
+                if (videos.length > 0) {
+                    statusDiv.innerHTML = '<span class="success">✓ 成功获取 ' + videos.length + ' 个视频</span>';
+                    
+                    videosDiv.innerHTML = videos.map(v => 
+                        '<div class="video-card">' +
+                        '<strong>' + v.bvid + '</strong><br>' +
+                        v.title + '<br>' +
+                        '<small>' + v.up + ' | ' + v.views + '</small>' +
+                        '</div>'
+                    ).join('');
+                } else {
+                    statusDiv.innerHTML = '<span class="error">✗ 没有视频数据</span>';
+                }
+                
+            } catch (error) {
+                console.error('错误:', error);
+                statusDiv.innerHTML = '<span class="error">错误: ' + error.message + '</span>';
+            }
+        }
+        
+        load();
+    </script>
+</body>
+</html>
