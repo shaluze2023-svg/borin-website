@@ -142,9 +142,6 @@
     <script>
         // 主题管理
         function getBeijingHour() {
-            const now = new Date();
-            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const beijing = new Date(utc + (3600000 * 8));
             return beijing.getHours();
         }
         
@@ -158,8 +155,6 @@
                     setTheme('light');
                 } else {
                     setTheme('dark');
-                }
-            }
         }
         
         function setTheme(theme) {
@@ -241,7 +236,6 @@
             } catch (error) {
                 console.error('获取B站热门失败:', error);
                 return getSampleVideos();
-            }
         }
         
         function getSampleVideos() {
@@ -287,11 +281,6 @@
             }, 1500);
         }
         
-            const now = new Date();
-            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const beijing = new Date(utc + (3600000 * 8));
-            document.getElementById('beijing-time').textContent = beijing.getHours().toString().padStart(2, '0') + ':' + beijing.getMinutes().toString().padStart(2, '0') + ':' + beijing.getSeconds().toString().padStart(2, '0');
-        }
         
         document.getElementById('searchToggle').addEventListener('click', function() { window.location.href = 'search.html'; });
         loadVideos();
