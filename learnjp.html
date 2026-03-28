@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日语学习助手 · にほんご</title>
+<style>
+  :root {
+    --bg: #0f0f1a;
+    --bg2: #16162a;
+    --bg3: #1e1e35;
+    --card: #1a1a2e;
+    --border: #2a2a4a;
+    --accent: #7c6af7;
+    --accent2: #f76ab4;
+    --accent3: #6af7d4;
+    --text: #e8e8f5;
+    --text2: #9090b8;
+    --text3: #5a5a8a;
+
+    /* 词性颜色 */
+    --pos-noun: #f7c06a;
+    --pos-verb: #6af7a8;
+    --pos-adj: #6ab8f7;
+    --pos-adv: #f76ab4;
+    --pos-particle: #c96af7;
+    --pos-conj: #f7906a;
+    --pos-aux: #6af7d4;
+    --pos-prefix: #f7f76a;
+    --pos-suffix: #f76a6a;
+    --pos-intj: #aaf76a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', 'Noto Sans JP', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(124,106,247,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(247,106,180,0.06) 0%, transparent 50%);
+  }
+
+  /* ===== 顶部 ===== */
+  header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    position: relative;
+  }
+  header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 2px;
+  }
+  header p {
+    color: var(--text2);
+    margin-top: 6px;
+    font-size: 0.9rem;
+    letter-spacing: 4px;
+  }
+
+  /* ===== 导航 Tab ===== */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 10px 24px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    color: var(--text2);
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.25s;
+    outline: none;
+  }
+  .tab-btn:hover { border-color: var(--accent); color: var(--text); }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(124,106,247,0.4);
+  }
+
+  /* ===== 主容器 ===== */
+  .main { max-width: 960px; margin: 0 auto; padding: 0 20px 60px; }
+
+  /* ===== 面板 ===== */
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ===== 卡片 ===== */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--text3);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ===== 假名表格 ===== */
+  .kana-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 8px;
+  }
+  .kana-cell {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .kana-cell:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(124,106,247,0.25);
+  }
+  .kana-cell.active-cell {
+    border-color: var(--accent2);
+    background: rgba(247,106,180,0.08);
+  }
+  .kana-main { font-size: 1.5rem; line-height: 1.2; }
+  .kana-roma { font-size: 0.65rem; color: var(--text3); margin-top: 3px; letter-spacing: 1px; }
+  .kana-type-hira .kana-main { color: #f7c06a; }
+  .kana-type-kata .kana-main { color: var(--accent3); }
+
+  /* 假名搜索 */
+  .kana-search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .kana-search-bar input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.2s;
+  }
+  .kana-search-bar input:focus { border-color: var(--accent); }
+  .kana-search-bar input::placeholder { color: var(--text3); }
+
+  /* 行切换按钮 */
+  .row-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .row-tab {
+    padding: 5px 14px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text2);
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+  }
+  .row-tab:hover { border-color: var(--accent3); color: var(--text); }
+  .row-tab.active { background: var(--accent3); color: var(--bg); border-color: transparent; font-weight: 600; }
+
+  /* 假名详情弹窗 */
+  .kana-detail {
+    background: var(--bg2);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 12px;
+    display: none;
+    animation: fadeIn 0.2s;
+  }
+  .kana-detail.show { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+  .kd-big { font-size: 3rem; }
+  .kd-info { flex: 1; min-width: 200px; }
+  .kd-info .kd-roma { font-size: 1.1rem; color: var(--accent3); margin-bottom: 6px; }
+  .kd-info .kd-pair { color: var(--text2); font-size: 0.9rem; }
+  .kd-info .kd-pair span { color: var(--text); margin: 0 6px; font-size: 1.1rem; }
+
+  /* ===== 翻译面板 ===== */
+  .trans-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media(max-width: 600px) { .trans-layout { grid-template-columns: 1fr; } }
+
+  .trans-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 160px;
+  }
+  .trans-box-label {
+    font-size: 0.75rem;
+    color: var(--text3);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .trans-box textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 1rem;
+    resize: none;
+    outline: none;
+    font-family: inherit;
+    line-height: 1.7;
+    min-height: 120px;
+  }
+  .trans-box textarea::placeholder { color: var(--text3); }
+
+  .trans-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+  .btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    outline: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    box-shadow: 0 3px 14px rgba(124,106,247,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 20px rgba(124,106,247,0.45); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-ghost {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--text); }
+
+  /* 方向切换 */
+  .direction-select {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .dir-opt {
+    padding: 7px 16px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text2);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .dir-opt:hover { border-color: var(--accent2); }
+  .dir-opt.active { background: rgba(247,106,180,0.15); border-color: var(--accent2); color: var(--accent2); }
+
+  /* 分析结果 */
+  .analysis-result {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 16px;
+    line-height: 2.2;
+    font-size: 1.05rem;
+    word-break: break-all;
+  }
+  .analysis-result.empty { color: var(--text3); font-size: 0.9rem; text-align: center; padding: 30px; }
+
+  /* 词性标注 token */
+  .token {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin: 2px 1px;
+    cursor: help;
+    position: relative;
+    transition: opacity 0.15s;
+  }
+  .token:hover { opacity: 0.85; }
+  .token-noun    { background: rgba(247,192,106,0.18); border-bottom: 2px solid var(--pos-noun);    color: var(--pos-noun); }
+  .token-verb    { background: rgba(106,247,168,0.15); border-bottom: 2px solid var(--pos-verb);    color: var(--pos-verb); }
+  .token-adj     { background: rgba(106,184,247,0.15); border-bottom: 2px solid var(--pos-adj);     color: var(--pos-adj); }
+  .token-adv     { background: rgba(247,106,180,0.15); border-bottom: 2px solid var(--pos-adv);     color: var(--pos-adv); }
+  .token-particle{ background: rgba(201,106,247,0.15); border-bottom: 2px solid var(--pos-particle); color: var(--pos-particle); }
+  .token-conj    { background: rgba(247,144,106,0.15); border-bottom: 2px solid var(--pos-conj);    color: var(--pos-conj); }
+  .token-aux     { background: rgba(106,247,212,0.12); border-bottom: 2px solid var(--pos-aux);     color: var(--pos-aux); }
+  .token-intj    { background: rgba(170,247,106,0.15); border-bottom: 2px solid var(--pos-intj);    color: var(--pos-intj); }
+  .token-other   { color: var(--text2); }
+
+  /* tooltip */
+  .token-tip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #12122a;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-width: 220px;
+    max-width: 280px;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--text);
+    z-index: 100;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    word-break: normal;
+    pointer-events: none;
+  }
+  .token-tip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--border);
+  }
+  .token:hover .token-tip { display: block; animation: fadeIn 0.15s; }
+  .tip-pos { font-weight: 700; margin-bottom: 4px; }
+  .tip-usage { color: var(--text2); }
+  .tip-common { color: var(--accent3); margin-top: 3px; }
+
+  /* 词性图例 */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    color: var(--text2);
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+  }
+
+  /* 翻译输出文本 */
+  #transOutput {
+    color: var(--text);
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  /* loading */
+  .loading {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 复制按钮 */
+  .copy-btn {
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text3);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { color: var(--text); border-color: var(--accent3); }
+
+  /* ===== 响应式 ===== */
+  @media(max-width:480px) {
+    header h1 { font-size: 1.6rem; }
+    .kana-cell { min-width: 56px; }
+    .kana-main { font-size: 1.2rem; }
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>にほんご学習ツール</h1>
+  <p>日 语 学 习 助 手</p>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('kana')">🔤 假名查询</button>
+  <button class="tab-btn" onclick="switchTab('translate')">🌐 翻译 & 分析</button>
+</div>
+
+<div class="main">
+
+  <!-- ===== 假名面板 ===== -->
+  <div class="panel active" id="panel-kana">
+
+    <div class="card">
+      <div class="card-title">搜索假名</div>
+      <div class="kana-search-bar">
+        <input id="kanaSearch" type="text" placeholder="输入罗马音 / 假名搜索，例如：ka、か、カ" oninput="searchKana(this.value)" />
+        <button class="btn btn-ghost" onclick="document.getElementById('kanaSearch').value='';searchKana('')">清空</button>
+      </div>
+      <div id="searchResult" style="display:none;" class="kana-grid"></div>
+    </div>
+
+    <!-- 平假名 -->
+    <div class="card">
+      <div class="card-title">平假名 · ひらがな</div>
+      <div class="row-tabs" id="hiraRowTabs"></div>
+      <div class="kana-grid" id="hiraGrid"></div>
+      <div class="kana-detail" id="hiraDetail"></div>
+    </div>
+
+    <!-- 片假名 -->
+    <div class="card">
+      <div class="card-title">片假名 · カタカナ</div>
+      <div class="row-tabs" id="kataRowTabs"></div>
+      <div class="kana-grid" id="kataGrid"></div>
+      <div class="kana-detail" id="kataDetail"></div>
+    </div>
+
+  </div>
+
+  <!-- ===== 翻译面板 ===== -->
+  <div class="panel" id="panel-translate">
+
+    <div class="card">
+      <div class="card-title">翻译方向</div>
+      <div class="direction-select">
+        <div class="dir-opt active" id="dir-zh2ja" onclick="setDir('zh2ja')">中文 → 日文</div>
+        <div class="dir-opt" id="dir-ja2zh" onclick="setDir('ja2zh')">日文 → 中文</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">输入文本</div>
+      <div class="trans-layout">
+        <div class="trans-box">
+          <div class="trans-box-label">
+            <span id="inputLangLabel">中文输入</span>
+            <button class="copy-btn" onclick="copyText('transInput')">复制</button>
+          </div>
+          <textarea id="transInput" placeholder="请输入要翻译的文本…"></textarea>
+        </div>
+        <div class="trans-box">
+          <div class="trans-box-label">
+            <span id="outputLangLabel">日文译文</span>
+            <button class="copy-btn" onclick="copyText('transOutput')">复制</button>
+          </div>
+          <div id="transOutput" style="flex:1;overflow-y:auto;"></div>
+        </div>
+      </div>
+      <div class="trans-controls">
+        <button class="btn btn-primary" onclick="doTranslate()">翻 译</button>
+        <button class="btn btn-ghost" onclick="clearTrans()">清 空</button>
+      </div>
+    </div>
+
+    <div class="card" id="analysisCard">
+      <div class="card-title">词性分析</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--pos-noun)"></div>名词</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--pos-verb)"></div>动词</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--pos-adj)"></div>形容词</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--pos-adv)"></div>副词</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--pos-particle)"></div>助词</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--pos-conj)"></div>接续词</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--pos-aux)"></div>助动词</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--pos-intj)"></div>感叹词</div>
+      </div>
+      <div class="analysis-result empty" id="analysisResult">翻译完成后，这里将显示词性分析与用法说明。悬停词汇可查看详情。</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// =============================================
+//  假名数据
+// =============================================
+const HIRAGANA = [
+  // [hiragana, katakana, romaji, row]
+  ['あ','ア','a','あ行'],['い','イ','i','あ行'],['う','ウ','u','あ行'],['え','エ','e','あ行'],['お','オ','o','あ行'],
+  ['か','カ','ka','か行'],['き','キ','ki','か行'],['く','ク','ku','か行'],['け','ケ','ke','か行'],['こ','コ','ko','か行'],
+  ['さ','サ','sa','さ行'],['し','シ','shi','さ行'],['す','ス','su','さ行'],['せ','セ','se','さ行'],['そ','ソ','so','さ行'],
+  ['た','タ','ta','た行'],['ち','チ','chi','た行'],['つ','ツ','tsu','た行'],['て','テ','te','た行'],['と','ト','to','た行'],
+  ['な','ナ','na','な行'],['に','ニ','ni','な行'],['ぬ','ヌ','nu','な行'],['ね','ネ','ne','な行'],['の','ノ','no','な行'],
+  ['は','ハ','ha','は行'],['ひ','ヒ','hi','は行'],['ふ','フ','fu','は行'],['へ','ヘ','he','は行'],['ほ','ホ','ho','は行'],
+  ['ま','マ','ma','ま行'],['み','ミ','mi','ま行'],['む','ム','mu','ま行'],['め','メ','me','ま行'],['も','モ','mo','ま行'],
+  ['や','ヤ','ya','や行'],['ゆ','ユ','yu','や行'],['よ','ヨ','yo','や行'],
+  ['ら','ラ','ra','ら行'],['り','リ','ri','ら行'],['る','ル','ru','ら行'],['れ','レ','re','ら行'],['ろ','ロ','ro','ら行'],
+  ['わ','ワ','wa','わ行'],['を','ヲ','wo','わ行'],['ん','ン','n','ん'],
+  // 浊音
+  ['が','ガ','ga','が行'],['ぎ','ギ','gi','が行'],['ぐ','グ','gu','が行'],['げ','ゲ','ge','が行'],['ご','ゴ','go','が行'],
+  ['ざ','ザ','za','ざ行'],['じ','ジ','ji','ざ行'],['ず','ズ','zu','ざ行'],['ぜ','ゼ','ze','ざ行'],['ぞ','ゾ','zo','ざ行'],
+  ['だ','ダ','da','だ行'],['ぢ','ヂ','di','だ行'],['づ','ヅ','du','だ行'],['で','デ','de','だ行'],['ど','ド','do','だ行'],
+  ['ば','バ','ba','ば行'],['び','ビ','bi','ば行'],['ぶ','ブ','bu','ば行'],['べ','ベ','be','ば行'],['ぼ','ボ','bo','ば行'],
+  ['ぱ','パ','pa','ぱ行'],['ぴ','ピ','pi','ぱ行'],['ぷ','プ','pu','ぱ行'],['ぺ','ペ','pe','ぱ行'],['ぽ','ポ','po','ぱ行'],
+  // 拗音
+  ['きゃ','キャ','kya','拗音'],['きゅ','キュ','kyu','拗音'],['きょ','キョ','kyo','拗音'],
+  ['しゃ','シャ','sha','拗音'],['しゅ','シュ','shu','拗音'],['しょ','ショ','sho','拗音'],
+  ['ちゃ','チャ','cha','拗音'],['ちゅ','チュ','chu','拗音'],['ちょ','チョ','cho','拗音'],
+  ['にゃ','ニャ','nya','拗音'],['にゅ','ニュ','nyu','拗音'],['にょ','ニョ','nyo','拗音'],
+  ['ひゃ','ヒャ','hya','拗音'],['ひゅ','ヒュ','hyu','拗音'],['ひょ','ヒョ','hyo','拗音'],
+  ['みゃ','ミャ','mya','拗音'],['みゅ','ミュ','myu','拗音'],['みょ','ミョ','myo','拗音'],
+  ['りゃ','リャ','rya','拗音'],['りゅ','リュ','ryu','拗音'],['りょ','リョ','ryo','拗音'],
+  ['ぎゃ','ギャ','gya','拗音'],['ぎゅ','ギュ','gyu','拗音'],['ぎょ','ギョ','gyo','拗音'],
+  ['じゃ','ジャ','ja','拗音'],['じゅ','ジュ','ju','拗音'],['じょ','ジョ','jo','拗音'],
+  ['びゃ','ビャ','bya','拗音'],['びゅ','ビュ','byu','拗音'],['びょ','ビョ','byo','拗音'],
+  ['ぴゃ','ピャ','pya','拗音'],['ぴゅ','ピュ','pyu','拗音'],['ぴょ','ピョ','pyo','拗音'],
+];
+
+const ROWS_ORDER = ['あ行','か行','さ行','た行','な行','は行','ま行','や行','ら行','わ行','ん',
+                    'が行','ざ行','だ行','ば行','ぱ行','拗音'];
+
+let currentHiraRow = 'all';
+let currentKataRow = 'all';
+let activeHiraCell = null;
+let activeKataCell = null;
+
+function buildRowTabs(containerId, type) {
+  const el = document.getElementById(containerId);
+  const allBtn = document.createElement('button');
+  allBtn.className = 'row-tab active';
+  allBtn.textContent = '全部';
+  allBtn.onclick = () => filterRow(type, 'all', allBtn);
+  el.appendChild(allBtn);
+  ROWS_ORDER.forEach(row => {
+    const btn = document.createElement('button');
+    btn.className = 'row-tab';
+    btn.textContent = row;
+    btn.onclick = () => filterRow(type, row, btn);
+    el.appendChild(btn);
+  });
+}
+
+function filterRow(type, row, btn) {
+  const tabsId = type === 'hira' ? 'hiraRowTabs' : 'kataRowTabs';
+  document.querySelectorAll('#'+tabsId+' .row-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if(type === 'hira') { currentHiraRow = row; renderGrid('hira'); }
+  else { currentKataRow = row; renderGrid('kata'); }
+}
+
+function renderGrid(type) {
+  const gridId = type === 'hira' ? 'hiraGrid' : 'kataGrid';
+  const detailId = type === 'hira' ? 'hiraDetail' : 'kataDetail';
+  const rowFilter = type === 'hira' ? currentHiraRow : currentKataRow;
+  const grid = document.getElementById(gridId);
+  const detail = document.getElementById(detailId);
+  detail.classList.remove('show');
+
+  const filtered = rowFilter === 'all' ? HIRAGANA : HIRAGANA.filter(k => k[3] === rowFilter);
+  grid.innerHTML = '';
+
+  filtered.forEach(k => {
+    const cell = document.createElement('div');
+    cell.className = `kana-cell kana-type-${type}`;
+    const mainChar = type === 'hira' ? k[0] : k[1];
+    cell.innerHTML = `<div class="kana-main">${mainChar}</div><div class="kana-roma">${k[2]}</div>`;
+    cell.onclick = () => showKanaDetail(type, k, cell);
+    grid.appendChild(cell);
+  });
+}
+
+function showKanaDetail(type, k, cell) {
+  const detailId = type === 'hira' ? 'hiraDetail' : 'kataDetail';
+  const detail = document.getElementById(detailId);
+  const prevActive = type === 'hira' ? activeHiraCell : activeKataCell;
+  if(prevActive) prevActive.classList.remove('active-cell');
+  cell.classList.add('active-cell');
+  if(type === 'hira') activeHiraCell = cell; else activeKataCell = cell;
+
+  const mainChar  = type === 'hira' ? k[0] : k[1];
+  const pairChar  = type === 'hira' ? k[1] : k[0];
+  const pairLabel = type === 'hira' ? '对应片假名' : '对应平假名';
+  const typeColor = type === 'hira' ? 'var(--pos-noun)' : 'var(--accent3)';
+
+  detail.innerHTML = `
+    <div class="kd-big" style="color:${typeColor}">${mainChar}</div>
+    <div class="kd-info">
+      <div class="kd-roma">罗马音：${k[2]}</div>
+      <div class="kd-pair">${pairLabel}：<span>${pairChar}</span></div>
+      <div class="kd-pair" style="margin-top:4px;color:var(--text3);">所属行：${k[3]}</div>
+    </div>`;
+  detail.classList.add('show');
+}
+
+function searchKana(val) {
+  const resultEl = document.getElementById('searchResult');
+  if(!val.trim()) { resultEl.style.display='none'; resultEl.innerHTML=''; return; }
+  const q = val.trim().toLowerCase();
+  const matched = HIRAGANA.filter(k =>
+    k[0].includes(q) || k[1].includes(q) || k[2].toLowerCase().includes(q)
+  );
+  resultEl.style.display = matched.length ? 'grid' : 'none';
+  resultEl.innerHTML = '';
+  matched.forEach(k => {
+    const hCell = document.createElement('div');
+    hCell.className = 'kana-cell kana-type-hira';
+    hCell.innerHTML = `<div class="kana-main">${k[0]}</div><div class="kana-roma">${k[2]}</div>`;
+    hCell.onclick = () => showKanaDetail('hira', k, hCell);
+
+    const kCell = document.createElement('div');
+    kCell.className = 'kana-cell kana-type-kata';
+    kCell.innerHTML = `<div class="kana-main">${k[1]}</div><div class="kana-roma">${k[2]}</div>`;
+    kCell.onclick = () => showKanaDetail('kata', k, kCell);
+
+    resultEl.appendChild(hCell);
+    resultEl.appendChild(kCell);
+  });
+}
+
+// =============================================
+//  翻译 & 分析
+// =============================================
+let currentDir = 'zh2ja';
+
+function setDir(dir) {
+  currentDir = dir;
+  document.querySelectorAll('.dir-opt').forEach(el => el.classList.remove('active'));
+  document.getElementById('dir-'+dir).classList.add('active');
+  const isZh2Ja = dir === 'zh2ja';
+  document.getElementById('inputLangLabel').textContent  = isZh2Ja ? '中文输入' : '日文输入';
+  document.getElementById('outputLangLabel').textContent = isZh2Ja ? '日文译文' : '中文译文';
+  document.getElementById('transInput').placeholder = isZh2Ja ? '请输入中文文本…' : 'テキストを入力してください…';
+  clearTrans();
+}
+
+function clearTrans() {
+  document.getElementById('transInput').value = '';
+  document.getElementById('transOutput').innerHTML = '';
+  document.getElementById('analysisResult').innerHTML = '翻译完成后，这里将显示词性分析与用法说明。悬停词汇可查看详情。';
+  document.getElementById('analysisResult').className = 'analysis-result empty';
+}
+
+function copyText(id) {
+  const el = document.getElementById(id);
+  const text = el.value !== undefined ? el.value : el.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btns = document.querySelectorAll('.copy-btn');
+    btns.forEach(b => { if(b.onclick.toString().includes(id)) { b.textContent='已复制！'; setTimeout(()=>b.textContent='复制',1500); }});
+  });
+}
+
+// 使用 Google Translate 免费接口
+async function googleTranslate(text, from, to) {
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`;
+  const resp = await fetch(url);
+  const data = await resp.json();
+  return data[0].map(x => x[0]).join('');
+}
+
+// 词性分析数据库（日语常见词）
+const POS_DB = {
+  // 助词
+  'は':  {pos:'particle', label:'助词', usage:'主题提示助词，表示主题/对比', common:'用于句首标记话题：〜は〜です'},
+  'が':  {pos:'particle', label:'助词', usage:'主格助词，标记动作主体', common:'〜がある / 〜が好き'},
+  'を':  {pos:'particle', label:'助词', usage:'宾格助词，标记动作对象', common:'〜を食べる / 〜を見る'},
+  'に':  {pos:'particle', label:'助词', usage:'时间/方向/目的地助词', common:'〜に行く / 〜にある'},
+  'で':  {pos:'particle', label:'助词', usage:'场所/手段助词', common:'〜で食べる / 〜で作る'},
+  'の':  {pos:'particle', label:'助词', usage:'连体助词，表示从属关系', common:'私の / 日本語の勉強'},
+  'と':  {pos:'particle', label:'助词', usage:'并列/引用/共同助词', common:'〜と〜 / 〜と言う'},
+  'も':  {pos:'particle', label:'助词', usage:'同类助词，表示"也"', common:'私も / これも'},
+  'か':  {pos:'particle', label:'助词', usage:'疑问助词，表示疑问/不确定', common:'〜か？/ 〜か〜か'},
+  'よ':  {pos:'particle', label:'助词', usage:'终助词，表示告知/强调', common:'〜ですよ / 〜だよ'},
+  'ね':  {pos:'particle', label:'助词', usage:'终助词，表示确认/共感', common:'〜ですね / 〜だね'},
+  'へ':  {pos:'particle', label:'助词', usage:'方向助词，表示方向', common:'〜へ行く'},
+  'から':  {pos:'particle', label:'助词', usage:'起点助词，表示起点/原因', common:'〜から来る / 〜から'},
+  'まで':  {pos:'particle', label:'助词', usage:'终点助词，表示范围终点', common:'〜まで / 〜から〜まで'},
+  'より':  {pos:'particle', label:'助词', usage:'比较助词，表示比较基准', common:'〜より〜のほうが'},
+  'だけ':  {pos:'particle', label:'助词', usage:'限定助词，表示"只/仅"', common:'これだけ / 一つだけ'},
+  // 助动词
+  'です': {pos:'aux', label:'助动词', usage:'礼貌体断定助动词', common:'〜です（礼貌体）'},
+  'ます': {pos:'aux', label:'助动词', usage:'礼貌体动词活用语尾', common:'〜ます（礼貌现在/将来时）'},
+  'ない': {pos:'aux', label:'助动词', usage:'否定助动词', common:'〜ない（否定形）'},
+  'た':   {pos:'aux', label:'助动词', usage:'过去/完了助动词', common:'〜た（过去时）'},
+  'て':   {pos:'aux', label:'助动词', usage:'て形，连接动作/表示请求', common:'〜てください / 〜ている'},
+  'ている':{pos:'aux', label:'助动词', usage:'进行/状态持续', common:'〜ている（正在…/状态）'},
+  'られる':{pos:'aux', label:'助动词', usage:'被动/可能/尊敬助动词', common:'〜られる（被动/可能）'},
+  'せる': {pos:'aux', label:'助动词', usage:'使役助动词', common:'〜させる（让某人做）'},
+  'でしょう':{pos:'aux', label:'助动词', usage:'推量助动词，礼貌体', common:'〜でしょう（大概…吧）'},
+  'だろう': {pos:'aux', label:'助动词', usage:'推量助动词，普通体', common:'〜だろう（大概…吧）'},
+  // 常见动词
+  'する':  {pos:'verb', label:'动词', usage:'サ变动词，表示"做"', common:'勉強する / 仕事する'},
+  'いる':  {pos:'verb', label:'动词', usage:'一段动词，表示存在（有生命）', common:'〜がいる / 〜ている'},
+  'ある':  {pos:'verb', label:'动词', usage:'五段动词，表示存在（无生命）', common:'〜がある / 〜にある'},
+  'なる':  {pos:'verb', label:'动词', usage:'五段动词，表示"变成"', common:'〜になる / 〜くなる'},
+  'くる':  {pos:'verb', label:'动词', usage:'カ变动词，表示"来"', common:'〜てくる / 来る'},
+  'いく':  {pos:'verb', label:'动词', usage:'五段动词，表示"去"', common:'〜ていく / 行く'},
+  'みる':  {pos:'verb', label:'动词', usage:'一段动词，表示"看/试"', common:'〜てみる（试着做）'},
+  'おもう':{pos:'verb', label:'动词', usage:'五段动词，表示"思考/认为"', common:'〜と思う'},
+  'いう':  {pos:'verb', label:'动词', usage:'五段动词，表示"说/叫做"', common:'〜という / 〜と言う'},
+  'もらう':{pos:'verb', label:'动词', usage:'五段动词，表示"得到/请求"', common:'〜てもらう'},
+  'あげる':{pos:'verb', label:'动词', usage:'一段动词，表示给予（上给下）', common:'〜てあげる'},
+  'くれる':{pos:'verb', label:'动词', usage:'一段动词，表示给予（给我方）', common:'〜てくれる'},
+  // 常见名词
+  'わたし':{pos:'noun', label:'名词', usage:'第一人称代词"我"', common:'私は〜です'},
+  'あなた':{pos:'noun', label:'名词', usage:'第二人称代词"你"', common:'あなたは〜ですか'},
+  'かれ':  {pos:'noun', label:'名词', usage:'第三人称"他"', common:'彼は〜'},
+  'にほん':{pos:'noun', label:'名词', usage:'固有名词"日本"', common:'日本語 / 日本人'},
+  'ひと':  {pos:'noun', label:'名词', usage:'普通名词"人"', common:'この人 / あの人'},
+  'こと':  {pos:'noun', label:'名词', usage:'形式名词"事/事情"', common:'〜ということ / 〜こと'},
+  'もの':  {pos:'noun', label:'名词', usage:'名词"物/东西"，也用作形式名词', common:'〜というもの'},
+  'とき':  {pos:'noun', label:'名词', usage:'名词"时候"', common:'〜のとき / 〜とき'},
+  // 常见形容词
+  'いい':  {pos:'adj', label:'形容词', usage:'い形容词，表示"好/良好"', common:'いいです / いい〜'},
+  'おおきい':{pos:'adj', label:'形容词', usage:'い形容词，表示"大"', common:'大きい〜 / 大きくなる'},
+  'ちいさい':{pos:'adj', label:'形容词', usage:'い形容词，表示"小"', common:'小さい〜'},
+  'たかい': {pos:'adj', label:'形容词', usage:'い形容词，表示"高/贵"', common:'値段が高い'},
+  'やすい': {pos:'adj', label:'形容词', usage:'い形容词，表示"便宜/容易"', common:'値段が安い / 〜やすい'},
+  'すきな': {pos:'adj', label:'形容词', usage:'な形容词，表示"喜欢"', common:'〜が好きな / 好きです'},
+  'きれいな':{pos:'adj', label:'形容词', usage:'な形容词，表示"漂亮/干净"', common:'きれいです'},
+  'しずかな':{pos:'adj', label:'形容词', usage:'な形容词，表示"安静"', common:'静かな場所'},
+  // 副词
+  'とても': {pos:'adv', label:'副词', usage:'表示程度"非常/很"', common:'とても好き / とても大きい'},
+  'もっと': {pos:'adv', label:'副词', usage:'表示比较程度"更/更加"', common:'もっと〜してください'},
+  'すこし': {pos:'adv', label:'副词', usage:'表示少量"一点/稍微"', common:'少し待って'},
+  'たくさん':{pos:'adv', label:'副词', usage:'表示多量"很多/大量"', common:'たくさん食べる'},
+  'もう':   {pos:'adv', label:'副词', usage:'表示"已经/再"', common:'もう〜した / もう一度'},
+  'まだ':   {pos:'adv', label:'副词', usage:'表示"还/仍然"', common:'まだ〜ていない'},
+  'また':   {pos:'adv', label:'副词', usage:'表示"再/又"', common:'またね / また来る'},
+  'ぜんぜん':{pos:'adv', label:'副词', usage:'表示完全否定"全然/完全不"', common:'全然わからない'},
+  'いつも': {pos:'adv', label:'副词', usage:'表示"总是/经常"', common:'いつも〜する'},
+  // 接续词
+  'でも':   {pos:'conj', label:'接续词', usage:'表示转折"但是/可是"', common:'でも、〜 / 好きでも'},
+  'しかし': {pos:'conj', label:'接续词', usage:'表示转折"但是/然而"（书面）', common:'しかし、〜'},
+  'そして': {pos:'conj', label:'接续词', usage:'表示顺接"然后/并且"', common:'〜。そして、〜'},
+  'だから': {pos:'conj', label:'接续词', usage:'表示因果"所以/因此"', common:'だから〜 / 〜だから'},
+  'それから':{pos:'conj', label:'接续词', usage:'表示"然后/接下来"', common:'それから〜'},
+  'また':   {pos:'conj', label:'接续词', usage:'表示并列"另外/而且"', common:'また、〜'},
+  // 感叹词
+  'はい':   {pos:'intj', label:'感叹词', usage:'表示应答"是/好"', common:'はい、そうです'},
+  'いいえ': {pos:'intj', label:'感叹词', usage:'表示否定应答"不/不是"', common:'いいえ、違います'},
+  'ありがとう':{pos:'intj', label:'感叹词', usage:'感谢语"谢谢"', common:'ありがとうございます'},
+  'すみません':{pos:'intj', label:'感叹词', usage:'道歉/引起注意"对不起/请问"', common:'すみません、〜'},
+  'おはよう':{pos:'intj', label:'感叹词', usage:'早上问候"早上好"', common:'おはようございます'},
+  'こんにちは':{pos:'intj', label:'感叹词', usage:'白天问候"你好"', common:'こんにちは！'},
+  'こんばんは':{pos:'intj', label:'感叹词', usage:'夜晚问候"晚上好"', common:'こんばんは！'},
+};
+
+// 分词（简易规则分词，覆盖主要语法点）
+function tokenizeJapanese(text) {
+  const tokens = [];
+  let i = 0;
+  while(i < text.length) {
+    let matched = false;
+    // 从长到短匹配
+    for(let len = Math.min(6, text.length - i); len >= 1; len--) {
+      const chunk = text.slice(i, i+len);
+      const lc = chunk;
+      if(POS_DB[lc]) {
+        tokens.push({text: chunk, ...POS_DB[lc]});
+        i += len;
+        matched = true;
+        break;
+      }
+    }
+    if(!matched) {
+      // 尝试合并相邻普通字符
+      if(tokens.length && tokens[tokens.length-1].pos === 'other') {
+        tokens[tokens.length-1].text += text[i];
+      } else {
+        tokens.push({text: text[i], pos:'other', label:'', usage:'', common:''});
+      }
+      i++;
+    }
+  }
+  return tokens;
+}
+
+function renderAnalysis(jaText) {
+  const tokens = tokenizeJapanese(jaText);
+  const container = document.getElementById('analysisResult');
+  container.className = 'analysis-result';
+  container.innerHTML = '';
+
+  tokens.forEach(tok => {
+    const span = document.createElement('span');
+    if(tok.pos === 'other') {
+      span.className = 'token token-other';
+      span.textContent = tok.text;
+    } else {
+      span.className = `token token-${tok.pos}`;
+      span.innerHTML = `${tok.text}<span class="token-tip">
+        <div class="tip-pos">[${tok.label}] ${tok.text}</div>
+        <div class="tip-usage">${tok.usage}</div>
+        <div class="tip-common">常用法：${tok.common}</div>
+      </span>`;
+    }
+    container.appendChild(span);
+  });
+}
+
+async function doTranslate() {
+  const input = document.getElementById('transInput').value.trim();
+  if(!input) return;
+
+  const outputEl = document.getElementById('transOutput');
+  outputEl.innerHTML = '<span class="loading"></span> 翻译中…';
+
+  const from = currentDir === 'zh2ja' ? 'zh-CN' : 'ja';
+  const to   = currentDir === 'zh2ja' ? 'ja' : 'zh-CN';
+
+  try {
+    const result = await googleTranslate(input, from, to);
+    outputEl.innerHTML = `<span style="color:var(--text)">${result}</span>`;
+
+    // 分析日文侧
+    const jaText = currentDir === 'zh2ja' ? result : input;
+    renderAnalysis(jaText);
+  } catch(e) {
+    outputEl.innerHTML = `<span style="color:var(--pos-suffix)">翻译失败，请检查网络连接。</span>`;
+  }
+}
+
+// 回车触发翻译
+document.getElementById('transInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter' && e.ctrlKey) doTranslate();
+});
+
+// =============================================
+//  Tab 切换
+// =============================================
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['kana','translate'][i] === tab);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+// =============================================
+//  初始化
+// =============================================
+function init() {
+  buildRowTabs('hiraRowTabs', 'hira');
+  buildRowTabs('kataRowTabs', 'kata');
+  renderGrid('hira');
+  renderGrid('kata');
+}
+
+init();
+</script>
+<footer style="
+  text-align: center;
+  padding: 24px 20px 32px;
+  color: var(--text3);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+">
+  &copy; <span id="footerYear"></span> ぼりん. 保留所有权 All rights reserved.
+</footer>
+
+<script>
+  document.getElementById('footerYear').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
